@@ -1,0 +1,16 @@
+.input-txt {
+  border: none !important;
+  outline: none !important;
+  border-radius: 15px !important;
+  padding: 1em !important;
+  background-color: #ccc !important;
+  box-shadow: inset 2px 5px 10px rgba(0,0,0,0.3) !important;
+  transition: 300ms ease-in-out !important;
+}
+
+.input-txt:focus {
+  background-color: white !important;
+  transform: scale(1.05) !important;
+  box-shadow: 13px 13px 100px #969696,
+             -13px -13px 100px #ffffff !important;
+}
