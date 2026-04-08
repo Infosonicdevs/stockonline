@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import apiClient from "../../../api/client";
 import { toast } from "react-toastify";
+import CommonTable from "../../../components/navigation/CommonTable";
 
 function Taluka() {
   const [formData, setFormData] = useState({
@@ -20,6 +21,17 @@ function Taluka() {
   const [allDistricts, setAllDistricts] = useState([]);
   const [stateList, setStateList] = useState([]);
   const [districtsForState, setDistrictsForState] = useState([]);
+
+  const columns = [
+    {
+      label: "Sr. No",
+      render: (val, row, index) => index + 1,
+    },
+    { label: "State", accessor: "State" },
+    { label: "District", accessor: "Dist" },
+    { label: "Taluka", accessor: "Taluka" },
+    { label: "Taluka (Marathi)", accessor: "Taluka_RL" },
+  ];
 
   // search filter
   const filteredTalukas = talukasData.filter((t) => {
@@ -360,107 +372,18 @@ function Taluka() {
               </button>
             </div>
           </form>
-        ) : (
-          <div className="mt-2">
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <button
-                className="btn btn-sm btn-secondary"
-                onClick={() => {
-                  setShowTable(false);
-                  handleClear();
-                }}
-              >
-                Close
-              </button>
-
-              <div className="d-flex align-items-center gap-2">
-                <i className="bi bi-search"></i>
-                <label className="fw-semibold text-secondary small mb-0">
-                  Search{" "}
-                </label>
-                <input
-                  type="text"
-                  className="form-control "
-                  style={{
-                    width: "250px",
-                    height: "25px",
-                    marginRight: "210px",
-                  }}
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                />
-              </div>
-            </div>
-            <div
-              className="table-responsive mt-2"
-              style={{
-                maxHeight: "60vh",
-                overflowY: "auto",
-                overflowX: "auto",
-              }}
-            >
-              <table
-                className="table table-bordered text-center table-sm table-striped"
-                style={{
-                  whiteSpace: "nowrap",
-                  width: "max-content",
-                  minWidth: "100%",
-                }}
-              >
-                <thead
-                  className="table-light"
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: "semibold",
-                  }}
-                >
-                  <tr>
-                    <th className="table-column-bg-heading">Actions</th>
-                    <th className="table-column-bg-heading">State</th>
-                    <th className="table-column-bg-heading">District</th>
-                    <th className="table-column-bg-heading">Taluka</th>
-                    <th className="table-column-bg-heading">
-                      Taluka (Marathi)
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {filteredTalukas.length === 0 ? (
-                    <tr>
-                      <td colSpan="5" className="text-center">
-                        No records found
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredTalukas.map((d, i) => (
-                      <tr key={i}>
-                        <td>
-                          <button
-                            className="btn btn-info btn-sm me-1"
-                            onClick={() => handleEdit(d)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleDelete(d)}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                        <td>{d.State}</td>
-                        <td>{d.Dist}</td>
-                        <td>{d.Taluka}</td>
-                        <td>{d.Taluka_RL}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        ) : <CommonTable
+          columns={columns}
+          data={filteredTalukas}
+          onEdit={(index) => handleEdit(filteredTalukas[index])}
+          onDelete={(index) => handleDelete(filteredTalukas[index])}
+          searchValue={searchText}
+          onSearchChange={setSearchText}
+          onClose={() => {
+            setShowTable(false);
+            handleClear();
+          }}
+        />}
       </div>
     </div>
   );

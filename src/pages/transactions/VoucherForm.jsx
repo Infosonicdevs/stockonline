@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import apiClient from "../../api/client";
+import CommonTable from "../../components/navigation/CommonTable";
 import {
   deleteVoucher,
   getTransByTransId,
@@ -24,6 +25,26 @@ function VoucherForm() {
   const [transList, setTransList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editIndex, setEditIndex] = useState(null);
+
+  const columns = [
+    {
+      label: "Sr. No",
+      render: (val, row, index) => index + 1,
+    },
+    {
+      label: "Trans No",
+      render: (val, row) => row.Trans_no,
+    },
+    {
+      label: "Trans Amount",
+      render: (val, row) =>
+        row.Trans_amt ? Number(row.Trans_amt).toFixed(2) : "00.00",
+    },
+    {
+      label: "Trans Type",
+      render: (val, row) => row.Type_name,
+    },
+  ];
 
   const loginDate = localStorage.getItem("loginDate");
   const year_id = localStorage.getItem("Year_Id");
@@ -747,112 +768,37 @@ function VoucherForm() {
             </button>
           </div>
         </div>
-      ) : (
-        <div
-          className="bg-white p-3 rounded mx-auto shadow"
-          style={{ maxWidth: "1000px" }}
-        >
-          {/* Header */}
-          <div
-            className="text-white rounded p-2 text-center"
-            style={{ backgroundColor: "#365b80" }}
-          >
-            <h5 className="mb-0 fw-semibold">Voucher</h5>
-          </div>
-          <div className="d-flex align-items-center justify-content-between mb-2 gap-2 mt-2">
-            <button
-              className="btn btn-secondary btn-sm"
-              onClick={() => {
-                setShowTable(false);
-                handleClear();
-                setSearchTerm("");
-              }}
-            >
-              Close
-            </button>
-            {/* Ledger Name Search */}
-            <div className="d-flex align-items-center gap-2">
-              <i className="bi bi-search"></i>
-              <label className="fw-semibold text-secondary small mb-0">
-                Search
-              </label>
-              <input
-                type="text"
-                className="form-control "
-                style={{
-                  width: "420px",
-                  marginRight: "400px",
-                  height: "25px",
-                }}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search all columns..."
-              />
-            </div>
-          </div>
+      ) :
+<div style={{ paddingTop: "5px" }}>
+  {/* Header */}
+  <div
+    className="text-white rounded p-2 text-center"
+    style={{ backgroundColor: "#365b80" }}
+  >
+    <h5 className="mb-0 fw-semibold">Voucher</h5>
+  </div>
 
-          <div
-            className="table-responsive"
-            style={{ maxHeight: "60vh", overflowY: "auto" }}
-          >
-            <table
-              className="table table-bordered text-center table-sm table-striped"
-              style={{
-                whiteSpace: "nowrap",
-                width: "max-content",
-                minWidth: "100%",
-              }}
-            >
-              <thead
-                className="table-light"
-                style={{ fontSize: "13px", fontWeight: "semibold" }}
-              >
-                <tr>
-                  <th className="table-column-bg-heading">Actions</th>
-                  <th className="table-column-bg-heading">Sr. No.</th>
-                  <th className="table-column-bg-heading">Trans No</th>
-                  <th className="table-column-bg-heading">Trans Amount</th>
-                  <th className="table-column-bg-heading">Trans Type</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTransList.length === 0 ? (
-                  <tr>
-                    <td colSpan="5">No records found</td>
-                  </tr>
-                ) : (
-                  filteredTransList.map((item, index) => (
-                    <tr key={item.Trans_id}>
-                      <td>
-                        <button
-                          className="btn btn-info btn-sm me-1"
-                          onClick={() => handleEdit(item.Trans_id)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(item)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                      <td>{index + 1}</td>
-                      <td>{item.Trans_no}</td>
-                      <td>
-                        {item.Trans_amt
-                          ? Number(item.Trans_amt).toFixed(2)
-                          : "00.00"}
-                      </td>
-                      <td>{item.Type_name}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+  {/* 👇 Padding below search + close */}
+  <div style={{ marginTop: "10px" }}>
+    <CommonTable
+      columns={columns}
+      data={filteredTransList}
+      onEdit={(index) =>
+        handleEdit(filteredTransList[index].Trans_id)
+      }
+      onDelete={(index) =>
+        handleDelete(filteredTransList[index])
+      }
+      searchValue={searchTerm}
+      onSearchChange={setSearchTerm}
+      onClose={() => {
+        setShowTable(false);
+        handleClear();
+        setSearchTerm("");
+      }}
+    />
+  </div>
+</div>}
     </div>
   );
 }

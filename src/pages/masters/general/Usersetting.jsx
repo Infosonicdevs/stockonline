@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Axios } from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CommonTable from "../../../components/navigation/CommonTable";
 import {
   getUsers,
   getEmployees,
@@ -28,6 +29,35 @@ function Usersetting() {
   const [editIndex, setEditIndex] = useState(null);
   const [roles, setRoles] = useState([]);
   const [employees, setEmployees] = useState([]);
+
+  const columns = [
+    {
+      label: "Sr. No",
+      render: (val, row, index) => index + 1,
+    },
+    {
+      label: "Employee Code",
+      render: (val, row) => {
+        const emp = employees.find(
+          (e) => String(e.Emp_id) === String(row.Emp_id)
+        );
+        return emp?.Emp_code || "-";
+      },
+    },
+    {
+      label: "Employee Name",
+      render: (val, row) => {
+        const emp = employees.find(
+          (e) => String(e.Emp_id) === String(row.Emp_id)
+        );
+        return emp?.Emp_name || "-";
+      },
+    },
+    {
+      label: "User",
+      render: (val, row) => row.User_name,
+    },
+  ];
 
   // searchbar
   const filteredUsers = users.filter((u) => {
@@ -114,73 +144,73 @@ function Usersetting() {
     setEditIndex(null);
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  // === Validation ===
-  if (!formData.selectList) {
-    toast.error("Please select an Employee");
-    return;
-  }
-  if (!formData.user.trim()) {
-    toast.error("Please enter a User name");
-    return;
-  }
-  if (!formData.password.trim()) {
-    toast.error("Please enter a Password");
-    return;
-  }
-  if (!formData.userRole) {
-    toast.error("Please select a User Role");
-    return;
-  }
-
-  const payload = {
-    Emp_id: formData.selectList,
-    User_name: formData.user,
-    Password: formData.password,
-    Role_id: formData.userRole,
-    Log_in: 0,
-    Status: 1,
-    Created_by: username,
-    User_id: formData.User_id,
-  };
-
-  try {
-    if (editIndex !== null) {
-      await updateUser(payload);
-      toast.success("User updated successfully!");
-    } else {
-      await saveUser(payload);
-      toast.success("User added successfully!");
+    // === Validation ===
+    if (!formData.selectList) {
+      toast.error("Please select an Employee");
+      return;
+    }
+    if (!formData.user.trim()) {
+      toast.error("Please enter a User name");
+      return;
+    }
+    if (!formData.password.trim()) {
+      toast.error("Please enter a Password");
+      return;
+    }
+    if (!formData.userRole) {
+      toast.error("Please select a User Role");
+      return;
     }
 
-    fetchUsers();
-    handleClear();
-  } catch (err) {
-    toast.error("User already exits");
-  }
-};
+    const payload = {
+      Emp_id: formData.selectList,
+      User_name: formData.user,
+      Password: formData.password,
+      Role_id: formData.userRole,
+      Log_in: 0,
+      Status: 1,
+      Created_by: username,
+      User_id: formData.User_id,
+    };
 
-const handleEdit = (userId) => {
-  const u = users.find(user => user.User_id === userId);
-  if (!u) return;
+    try {
+      if (editIndex !== null) {
+        await updateUser(payload);
+        toast.success("User updated successfully!");
+      } else {
+        await saveUser(payload);
+        toast.success("User added successfully!");
+      }
 
-  // Find the employee object
-  const emp = employees.find(emp => String(emp.Emp_id) === String(u.Emp_id));
+      fetchUsers();
+      handleClear();
+    } catch (err) {
+      toast.error("User already exits");
+    }
+  };
 
-  setFormData({
-    employeeCode: emp?.Emp_code || "",   // Use Emp_code here
-    selectList: u.Emp_id.toString(),
-    user: u.User_name,
-    password: u.Password,
-    userRole: u.Role_id,
-    User_id: u.User_id
-  });
+  const handleEdit = (userId) => {
+    const u = users.find(user => user.User_id === userId);
+    if (!u) return;
 
-  setEditIndex(u.User_id);
-  setShowTable(false);
-};
+    // Find the employee object
+    const emp = employees.find(emp => String(emp.Emp_id) === String(u.Emp_id));
+
+    setFormData({
+      employeeCode: emp?.Emp_code || "",   // Use Emp_code here
+      selectList: u.Emp_id.toString(),
+      user: u.User_name,
+      password: u.Password,
+      userRole: u.Role_id,
+      User_id: u.User_id
+    });
+
+    setEditIndex(u.User_id);
+    setShowTable(false);
+  };
   const handleDelete = async (userId) => {
     const u = users.find(user => user.User_id === userId);
     if (!u) return;
@@ -217,7 +247,7 @@ const handleEdit = (userId) => {
             <div className="row g-2 mt-2 mb-2 align-items-end">
 
               <div className="col-md-3">
-                <label className="form-label" style={{ fontSize: "14px", marginLeft: "25px",marginBottom:"2px" }}>
+                <label className="form-label" style={{ fontSize: "14px", marginLeft: "25px", marginBottom: "2px" }}>
                   Employee Code
                 </label>
                 <input
@@ -255,7 +285,7 @@ const handleEdit = (userId) => {
             {/* Second Row: User + Password + User Role */}
             <div className="row g-3 mt-1 mb-4">
               <div className="col-md-3 ms-4">
-                <label className="form-label" style={{ fontSize: "14px",marginBottom:"2px" }}>
+                <label className="form-label" style={{ fontSize: "14px", marginBottom: "2px" }}>
                   User
                 </label>
                 <input
@@ -269,7 +299,7 @@ const handleEdit = (userId) => {
               </div>
 
               <div className="col-md-3 ms-3">
-                <label className="form-label" style={{ fontSize: "14px", marginLeft: "20px",marginBottom:"2px" }}>
+                <label className="form-label" style={{ fontSize: "14px", marginLeft: "20px", marginBottom: "2px" }}>
                   Password
                 </label>
                 <input
@@ -283,7 +313,7 @@ const handleEdit = (userId) => {
               </div>
 
               <div className="col-md-3 ms-3">
-                <label className="form-label" style={{ fontSize: "14px", marginLeft: "30px",marginBottom:"2px" }}>
+                <label className="form-label" style={{ fontSize: "14px", marginLeft: "30px", marginBottom: "2px" }}>
                   User Role
                 </label>
                 <select
@@ -330,103 +360,24 @@ const handleEdit = (userId) => {
             </div>
           </form>
         ) : (
-          <div
-            className="table-responsive mt-2"
-            style={{ maxHeight: "60vh", overflowY: "auto", overflowX: "auto" }}
-          >
-            <div className="d-flex align-items-center justify-content-between mb-2 gap-2">
-
-
-              {/* Close Button */}
-              <button
-                className="btn btn-sm btn-secondary"
-                onClick={() => {
-                  setShowTable(false);
-                  handleClear();
-                  setSearchCode("");
-                  setSearchName("");
-                }}
-              >
-                Close
-              </button>
-
-              {/* Employee Name Search */}
-              <div className="d-flex align-items-center gap-2">
-                <i className="bi bi-search"></i>
-                <label className="fw-semibold text-secondary small mb-0">Search</label>
-                <input
-                  type="text"
-                  className="form-control "
-                  style={{ width: "250px", marginRight: "260px", height: "25px" }}
-                  value={searchName}
-                  onChange={(e) => setSearchName(e.target.value)}
-                />
-              </div>
-            </div>
-            <table
-              className="table table-bordered text-center table-sm table-striped"
-              style={{
-                whiteSpace: "nowrap",
-                width: "max-content",
-                minWidth: "100%",
+          <div style={{ paddingTop: "5px" }}>
+            <CommonTable
+              columns={columns}
+              data={filteredUsers}
+              onEdit={(index) =>
+                handleEdit(filteredUsers[index].User_id)
+              }
+              onDelete={(index) =>
+                handleDelete(filteredUsers[index].User_id)
+              }
+              searchValue={searchName}
+              onSearchChange={setSearchName}
+              onClose={() => {
+                setShowTable(false);
+                handleClear();
+                setSearchName("");
               }}
-            >
-              <thead
-                className="table-light"
-                style={{ fontSize: "13px", fontWeight: "semibold" }}
-              >
-                <tr>
-                  <th className="table-column-bg-heading">Actions</th>
-                  <th className="table-column-bg-heading">Sr. No</th>
-                  <th className="table-column-bg-heading">Employee Code</th>
-                  <th className="table-column-bg-heading">Employe Name</th>
-                  <th className="table-column-bg-heading">User</th>
-
-                </tr>
-              </thead>
-
-
-              <tbody>
-                {filteredUsers.length === 0 ? (
-                  <tr>
-                    <td colSpan="5">No records found</td>
-                  </tr>
-                ) : (
-                  filteredUsers.map((u, index) => {
-                    const employee = employees.find(
-                      emp => String(emp.Emp_id) === String(u.Emp_id)
-                    );
-                    return (
-                      <tr key={u.User_id}>
-                        <td>
-                          <button
-                            className="btn btn-info btn-sm me-1"
-                            onClick={() => handleEdit(u.User_id)}
-                          >
-                            Edit
-                          </button>
-
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleDelete(u.User_id)}
-                          >
-                            Delete
-                          </button>
-                        </td>
-
-                        <td>{index + 1}</td>
-
-                        <td>{employee?.Emp_code || "-"}</td>
-
-                        <td className="text-start">{employee?.Emp_name || "-"}</td>
-
-                        <td className="text-start">{u.User_name}</td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+            />
           </div>
         )}
       </div>

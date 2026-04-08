@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import apiClient from "../../../api/client";
 import { validateRequiredFields } from "../../../utils/validator";
-
+import CommonTable from "../../../components/navigation/CommonTable";
 
 const API_BASE = `/api/Year`;
 
@@ -35,6 +35,26 @@ function YearSetting() {
   const [editIndex, setEditIndex] = useState(null);
   const [showTable, setShowTable] = useState(false);
   const [activeYear, setActiveYear] = useState(null);
+
+  const columns = [
+  {
+    label: "Sr. No",
+    render: (val, row, index) => index + 1,
+  },
+  {
+    label: "Start Date",
+    render: (val, row) => formatDisplayDate(row.start),
+  },
+  {
+    label: "End Date",
+    render: (val, row) => formatDisplayDate(row.end),
+  },
+  {
+    label: "Status",
+    render: (val, row) =>
+      row.selection === "current" ? "Active" : "Close",
+  },
+];
 
   const calculateNewEnd = (startStr) => {
     if (!startStr) return "";
@@ -399,80 +419,22 @@ function YearSetting() {
               </button>
             </div>
           </form>
-        ) : (
-          <div className="mt-2">
-            <div className="text-left mb-3">
-              <button
-                className="btn btn-sm btn-secondary"
-                onClick={() => {
-                  setShowTable(false);
-                  handleClear();
-                }}
-              >
-                Close
-              </button>
-            </div>
-            <div
-              className="table-responsive mt-2"
-              style={{
-                maxHeight: "60vh",
-                overflowY: "auto",
-                overflowX: "auto",
-              }}
-            >
-              <table
-                className="table table-bordered text-center table-sm table-striped"
-                style={{
-                  whiteSpace: "nowrap",
-                  width: "max-content",
-                  minWidth: "100%",
-                }}
-              >
-                <thead
-                  className="table-light"
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: "semibold",
-                  }}
-                >
-                  <tr>
-                    <th className="table-column-bg-heading">Actions</th>
-                    <th className="table-column-bg-heading">Sr.No</th>
-                    <th className="table-column-bg-heading">Start Date</th>
-                    <th className="table-column-bg-heading">End Date</th>
-                    <th className="table-column-bg-heading">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {yearList.length === 0 ? (
-                    <tr>
-                      <td colSpan="5">No Records</td>
-                    </tr>
-                  ) : (
-                    yearList.map((y, i) => (
-                      <tr key={y.id}>
-                        <td>
-                          <button
-                            className="btn btn-info btn-sm me-1"
-                            onClick={() => handleEdit(i)}
-                          >
-                            Edit
-                          </button>
-                        </td>
-                        <td>{i + 1}</td>
-                        <td>{formatDisplayDate(y.start)}</td>
-                        <td>{formatDisplayDate(y.end)}</td>
+        )  : (
 
-                        <td>{y.selection === "current" ? "Active" : "Close"}</td>
+    <CommonTable
+      columns={columns}
+      data={yearList}
+      onEdit={(index) => handleEdit(index)}
+      onDelete={null} 
+      searchValue={""} 
+      onSearchChange={() => {}}
+      onClose={() => {
+        setShowTable(false);
+        handleClear();
+      }}
+    />
 
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+)}
       </div>
     </div>
   );

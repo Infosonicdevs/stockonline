@@ -3,6 +3,7 @@ import apiClient from "../../../api/client";
 import { deleteState } from "../../../services/masters/region";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CommonTable from "../../../components/navigation/CommonTable";
 
 function State() {
   const [formData, setFormData] = useState({
@@ -14,6 +15,15 @@ function State() {
   const [states, setStates] = useState([]);
   const [showTable, setShowTable] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
+
+  const columns = [
+    {
+      label: "Sr. No",
+      render: (val, row, index) => index + 1,
+    },
+    { label: "State", accessor: "stateNameEn" },
+    { label: "State (Regional)", accessor: "stateNameMr" },
+  ];
 
   const filteredStates = states.filter((s) => {
     const term = searchName.trim().toLowerCase();
@@ -124,10 +134,10 @@ function State() {
         {!showTable ? (
           <form onSubmit={handleSubmit}>
             {/* Row: State / District (Regional) */}
-            <div className="row g-3 mb-0" style={{fontSize:"14px"}}>
+            <div className="row g-3 mb-0" style={{ fontSize: "14px" }}>
               <div className="col me-4">
                 <label className="fw-small">State</label>
-                <span style={{ color: "red", marginLeft:"2px" }}>*</span>
+                <span style={{ color: "red", marginLeft: "2px" }}>*</span>
                 <input
                   type="text"
                   name="stateNameEn"
@@ -184,105 +194,18 @@ function State() {
               </button>
             </div>
           </form>
-        ) : (
-          <div className="mt-2">
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              {/* Close Button */}
-              <button
-                className="btn btn-sm btn-secondary"
-                onClick={() => {
-                  setShowTable(false);
-                  handleClear();
-                }}
-              >
-                Close
-              </button>
-
-              {/* Search Box */}
-              <div className="d-flex align-items-center gap-2">
-                <i className="bi bi-search"></i>
-                <label className="fw-semibold text-secondary small mb-0">
-                  Search{" "}
-                </label>
-                <input
-                  type="text"
-                  className="form-control "
-                  style={{
-                    width: "250px",
-                    height: "25px",
-                    marginRight: "250px",
-                  }}
-                  value={searchName}
-                  onChange={(e) => setSearchName(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div
-              className="table-responsive mt-2"
-              style={{
-                maxHeight: "60vh",
-                overflowY: "auto",
-                overflowX: "auto",
-              }}
-            >
-              <table
-                className="table table-bordered text-center table-sm table-striped"
-                style={{
-                  whiteSpace: "nowrap",
-                  width: "max-content",
-                  minWidth: "100%",
-                }}
-              >
-                <thead
-                  className="table-light"
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: "semibold",
-                  }}
-                >
-                  <tr>
-                    <th className="table-column-bg-heading">Actions</th>
-                    <th className="table-column-bg-heading">Sr. No</th>
-                    <th className="table-column-bg-heading">State</th>
-                    <th className="table-column-bg-heading">
-                      State (Regional)
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredStates.length === 0 ? (
-                    <tr className="text-center">
-                      <td colSpan="4">No records found</td>
-                    </tr>
-                  ) : (
-                    filteredStates.map((s, i) => (
-                      <tr key={s.State_id}>
-                        <td>
-                          <button
-                            className="btn btn-info btn-sm me-1"
-                            onClick={() => handleEdit(s)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleDelete(s)}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                        <td>{i + 1}</td>
-                        <td>{s.stateNameEn}</td>
-                        <td>{s.stateNameMr}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        ) : <CommonTable
+          columns={columns}
+          data={filteredStates}
+          onEdit={(index) => handleEdit(filteredStates[index])}
+          onDelete={(index) => handleDelete(filteredStates[index])}
+          searchValue={searchName}
+          onSearchChange={setSearchName}
+          onClose={() => {
+            setShowTable(false);
+            handleClear();
+          }}
+        />}
       </div>
     </div>
   );
