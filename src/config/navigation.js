@@ -37,6 +37,7 @@ export const navigationConfig = [
     icon: "bi bi-receipt",
     submenu: [
       { title: "Voucher", path: "/voucher" },
+      { title: "Stock Distribution", path: "/stockdistribution" },
     ],
   },
   {

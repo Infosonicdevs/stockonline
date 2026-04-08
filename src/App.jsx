@@ -38,6 +38,7 @@ import GstSlab from "./pages/masters/stock/GstSlab";
 import BankAccountForm from "./pages/masters/general/Bankaccountinfo";
 import Counter from "./pages/masters/general/Counter";
 import AssignCounter from "./pages/masters/general/AssignCounter";
+import Stockdistribution from "./pages/masters/stock/Stockdistribution";
 
 function App() {
   return (
@@ -78,6 +79,7 @@ function App() {
             <Route path="/stockgroup" element={<StockGroup />} />
             <Route path="/stocksubgroup" element={<StockSubGroup />} />
             <Route path="/stockdetails" element={<StockDetails />} />
+            <Route path="/stockdistribution" element={<Stockdistribution/>} />
             <Route path="/gstslab" element={<GstSlab />} />
             <Route path="/bankaccountinfo" element={<BankAccountForm />} />
             <Route path="/counter" element={<Counter />} />

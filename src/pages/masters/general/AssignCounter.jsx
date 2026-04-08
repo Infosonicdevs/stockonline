@@ -100,7 +100,7 @@ function AssignCounter() {
   };
 
   const handleClear = () => {
-    setFormData({
+    setFormData({ 
       Counter_id: "",
       Emp_id: "",
       Login_date: getInitialLoginDate(),
