@@ -1,62 +1,69 @@
 import React from "react";
 
 function CommonTable({
-  title = "Table",
   columns = [],
   data = [],
   onEdit,
   onDelete,
-  onClose,
-  searchValue,
+  showActions = true,
+  searchValue = "",
   onSearchChange,
-  searchPlaceholder = "Search...",
+  onClose,
 }) {
   return (
-    <div
-      className="bg-white p-3 rounded shadow mx-auto"
-      style={{ maxWidth: "1000px" }}
-    >
-      {/* Header */}
-      <div
-        className="text-white rounded mb-3 p-2 text-center fw-semibold"
-        style={{ backgroundColor: "#365b80" }}
-      >
-        {title}
-      </div>
-
-      {/* Top Controls */}
+    <div>
+      {/*  Top Bar */}
       <div className="d-flex justify-content-between align-items-center mb-2">
-        <button className="btn btn-sm btn-secondary" onClick={onClose}>
-          Close
-        </button>
 
         <div className="d-flex align-items-center gap-2">
-          <i className="bi bi-search"></i>
           <input
             type="text"
-            className="form-control"
-            style={{ width: "250px", height: "28px" }}
+            className="form-control form-control-sm"
+            style={{ width: "250px" }}
             value={searchValue}
+            placeholder="Search..."
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder={searchPlaceholder}
           />
+          <i className="bi bi-search"></i>
         </div>
+
+        {/* Close Button */}
+        <button
+          className="btn btn-sm btn-secondary"
+          onClick={onClose}
+        >
+          Close
+        </button>
       </div>
 
-      {/* Table */}
+      {/*  Table */}
       <div
         className="table-responsive"
-        style={{ maxHeight: "60vh", overflow: "auto" }}
+        style={{
+          maxHeight: "60vh",
+          overflowY: "auto",
+          overflowX: "auto",
+        }}
       >
         <table
-          className="table table-bordered table-striped table-sm text-center"
-          style={{ whiteSpace: "nowrap", minWidth: "100%" }}
+          className="table table-bordered text-center table-sm table-striped"
+          style={{
+            whiteSpace: "nowrap",
+            width: "max-content",
+            minWidth: "100%",
+          }}
         >
-          <thead className="table-light" style={{ fontSize: "13px" }}>
-            <tr>
-              <th>Actions</th>
-              {columns.map((col, i) => (
-                <th key={i}>{col.header}</th>
+          <thead
+            className="table-light"
+            style={{
+              fontSize: "13px",
+              fontWeight: "semibold",
+            }}
+          >
+            <tr >
+              {showActions && <th className="table-column-bg-heading">Actions</th>}
+              {columns.map((col, index) => (
+                <th className="table-column-bg-heading" key={index}>{col.label}</th>
               ))}
             </tr>
           </thead>
@@ -64,29 +71,37 @@ function CommonTable({
           <tbody>
             {data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + 1}>No records found</td>
+                <td colSpan={columns.length + (showActions ? 1 : 0)}>
+                  No records found
+                </td>
               </tr>
             ) : (
-              data.map((row, index) => (
-                <tr key={index}>
-                  <td>
-                    <button
-                      className="btn btn-info btn-sm me-1"
-                      onClick={() => onEdit(row)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => onDelete(row)}
-                    >
-                      Delete
-                    </button>
-                  </td>
+              data.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {showActions && (
+                    <td>
+                      <button
+                        className="btn btn-info btn-sm me-1"
+                        onClick={() => onEdit(rowIndex)}
+                      >
+                        Edit
+                      </button>
+                      {onDelete && (
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => onDelete(rowIndex)}
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </td>
+                  )}
 
-                  {columns.map((col, i) => (
-                    <td key={i}>
-                      {col.render ? col.render(row) : row[col.accessor]}
+                  {columns.map((col, colIndex) => (
+                    <td key={colIndex} className={col.className || ""}>
+                      {col.render
+                        ? col.render(row[col.accessor], row, rowIndex)
+                        : row[col.accessor]}
                     </td>
                   ))}
                 </tr>

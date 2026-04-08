@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-import CommonTable from "../../../components/navigation/CommonTable";
+import CommonTable from "../../../components/navigation/CommonTable"; 
 import {
   getCustomers,
   getStates,
@@ -54,6 +54,65 @@ const CustomerInfo = () => {
     closingDate: today,
     reason: "",
   });
+
+
+
+  const columns = [
+  { label: "Account No", accessor: "Cust_no" },
+  { label: "Card No", accessor: "Card_no" },
+  {
+    label: "Prefix",
+    render: (val, row) =>
+      prefixes.find((p) => p.Prefix_id === row.Prefix_id)?.Prefix || "",
+  },
+  {
+    label: "Name",
+    className: "text-start",
+    render: (val, row) =>
+      [
+        row.First_name,
+        row.Middle_name,
+        row.Last_name,
+        row.Append,
+      ]
+        .filter(Boolean)
+        .join(" "),
+  },
+  { label: "Address", accessor: "Address", className: "text-start" },
+  {
+    label: "State",
+    render: (val, row) =>
+      states.find((s) => s.State_id === row.State_id)?.State || "",
+  },
+  {
+    label: "District",
+    render: (val, row) =>
+      districts.find((d) => d.Dist_id === row.District_id)?.Dist || "",
+  },
+  {
+    label: "Block",
+    render: (val, row) =>
+      talukas.find((t) => t.Taluka_id === row.Taluka_id)?.Taluka || "",
+  },
+  {
+    label: "City",
+    render: (val, row) =>
+      cities.find((c) => c.City_id === row.City_id)?.City || "",
+  },
+  { label: "Gender", accessor: "Gender_name" },
+  {
+    label: "DOB",
+    render: (val, row) => formatDate(row.DOB),
+  },
+  {
+    label: "Opening Date",
+    render: (val, row) => formatDate(row.Acc_start_date),
+  },
+  { label: "Mobile", accessor: "Phone_no" },
+  { label: "Accountant", accessor: "Cust_type" },
+  { label: "Voter", accessor: "Matdar_prakar" },
+  { label: "Status", accessor: "Status_text" },
+];
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -850,76 +909,31 @@ const CustomerInfo = () => {
 
       {/* ================= TABLE ================= */}
 
-      <CommonTable
-        title="Customer List"
-        data={filteredCustomers}
-        searchValue={searchTerm}
-        onSearchChange={setSearchTerm}
-        onClose={() => setShowTable(false)}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        columns={[
-          { header: "Account No", accessor: "Cust_no" },
-          { header: "Card No", accessor: "Card_no" },
+     {showTable && (
+  <div
+    className="bg-white rounded shadow mx-auto"
+    style={{ maxWidth: "1000px", padding: "10px", marginTop: "0px" }}
+  >
+    <div
+      className="text-white rounded mb-1 p-1"
+      style={{ backgroundColor: "#365b80" }}
+    >
+      <h5 className="mb-0 fw-semibold text-center">Customer List</h5>
+    </div>
 
-          {
-            header: "Prefix",
-            render: (row) =>
-              prefixes.find((p) => p.Prefix_id === row.Prefix_id)?.Prefix || "",
-          },
+    <CommonTable
+      columns={columns}
+      data={filteredCustomers}
+      onEdit={(index) => handleEdit(filteredCustomers[index])}
+      onDelete={(index) => handleDelete(filteredCustomers[index])}
+      onClose={() => setShowTable(false)}
+      searchValue={searchTerm}
+      onSearchChange={(val) => setSearchTerm(val)}
+      style={{ marginTop: "0px" }}
+    />
+  </div>
 
-          {
-            header: "Name",
-            render: (row) =>
-              [row.First_name, row.Middle_name, row.Last_name, row.Append]
-                .filter(Boolean)
-                .join(" "),
-          },
-
-          { header: "Address", accessor: "Address" },
-
-          {
-            header: "State",
-            render: (row) =>
-              states.find((s) => s.State_id === row.State_id)?.State || "",
-          },
-
-          {
-            header: "District",
-            render: (row) =>
-              districts.find((d) => d.Dist_id === row.District_id)?.Dist || "",
-          },
-
-          {
-            header: "Block",
-            render: (row) =>
-              talukas.find((t) => t.Taluka_id === row.Taluka_id)?.Taluka || "",
-          },
-
-          {
-            header: "City",
-            render: (row) =>
-              cities.find((c) => c.City_id === row.City_id)?.City || "",
-          },
-
-          { header: "Gender", accessor: "Gender_name" },
-
-          {
-            header: "DOB",
-            render: (row) => formatDate(row.DOB),
-          },
-
-          {
-            header: "Opening Date",
-            render: (row) => formatDate(row.Acc_start_date),
-          },
-
-          { header: "Mobile", accessor: "Phone_no" },
-          { header: "Accountant", accessor: "Cust_type" },
-          { header: "Voter", accessor: "Matdar_prakar" },
-          { header: "Status", accessor: "Status_text" },
-        ]}
-      />
+)}
     </div>
   );
 };
