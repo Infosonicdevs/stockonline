@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import apiClient from "../../../api/client";
+import CommonTable from "../../../components/navigation/CommonTable";
 import {
   getPatrakTypes,
   getCrDR,
@@ -30,7 +31,37 @@ function SubLedgerGroup() {
   const [crDrs, setCrDrs] = useState([]);
   const [editData, setEditData] = useState(null);
   const username = localStorage.getItem("username");
-  
+
+  const columns = [
+    {
+      label: "Sr. No.",
+      render: (val, row, index) => index + 1,
+    },
+    {
+      label: "Name",
+      accessor: "Ledger_subgroup_name",
+      className: "text-start",
+    },
+    {
+      label: "Name RL",
+      accessor: "Ledger_subgroup_name_RL",
+      className: "text-start",
+    },
+    {
+      label: "Ledger Group",
+      accessor: "L_group_name",
+      className: "text-start",
+    },
+    {
+      label: "Seq",
+      accessor: "Seqno",
+    },
+    {
+      label: "Code",
+      accessor: "Code",
+    },
+  ];
+
 
   // Filtered list for search
 
@@ -215,7 +246,7 @@ function SubLedgerGroup() {
       console.error(error);
       toast.error(
         error.response?.data ||
-          "Error occurred while saving ledger sub group data",
+        "Error occurred while saving ledger sub group data",
       );
     }
   };
@@ -449,116 +480,36 @@ function SubLedgerGroup() {
             </div>
           </form>
         </div>
-      ) : (
-        <div
-          className="bg-white p-3 rounded mx-auto shadow"
-          style={{ maxWidth: "1000px" }}
-        >
-          {/* Header */}
-          <div
-            className="text-white rounded p-2 text-center"
-            style={{ backgroundColor: "#365b80" }}
-          >
-            <h5 className="mb-0 fw-semibold">Ledger Sub Group</h5>
-          </div>
-          <div className="d-flex justify-content-between align-items-center mb-2 mt-2">
-            {/* Close Button */}
-            <button
-              className="btn btn-sm btn-secondary"
-              onClick={() => {
-                setShowTable(false);
-                handleClear();
-              }}
-            >
-              Close
-            </button>
-
-            {/* Search Box */}
-            <div className="d-flex align-items-center gap-2">
-              <i className="bi bi-search"></i>
-              <label className="fw-semibold text-secondary small mb-0">
-                Search
-              </label>
-              <input
-                type="text"
-                className="form-control "
-                style={{ width: "300px", height: "25px", marginRight: "480px" }}
-                value={searchName}
-                onChange={(e) => setSearchName(e.target.value)}
-              />
-            </div>
-          </div>
-          <div
-            className="table-responsive mt-2"
-            style={{
-              maxHeight: "60vh",
-              overflowY: "auto",
-              overflowX: "auto",
-            }}
-          >
-            <table
-              className="table table-bordered text-center table-sm table-striped"
-              style={{
-                whiteSpace: "nowrap",
-                width: "max-content",
-                minWidth: "100%",
-              }}
-            >
-              <thead
-                className="table-light"
-                style={{
-                  fontSize: "13px",
-                  fontWeight: "semibold",
-                }}
-              >
-                <tr>
-                  <th className="table-column-bg-heading">Actions</th>
-                  <th className="table-column-bg-heading">Sr. No.</th>
-                  <th className="table-column-bg-heading">Name</th>
-                  <th className="table-column-bg-heading">Name RL</th>
-                  <th className="table-column-bg-heading">Ledger Group</th>
-                  <th className="table-column-bg-heading">Seq</th>
-                  <th className="table-column-bg-heading">Code</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLedgerSubGroups.length === 0 ? (
-                  <tr>
-                    <td colSpan="7">No Records</td>
-                  </tr>
-                ) : (
-                  filteredLedgerSubGroups.map((l, i) => (
-                    <tr key={l.Ledger_subgroup_id}>
-                      <td>
-                        <button
-                          className="btn btn-info btn-sm me-1"
-                          onClick={() => handleEdit(l)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(l)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                      <td>{i + 1}</td>
-                      <td className="text-start">{l.Ledger_subgroup_name}</td>
-                      <td className="text-start">
-                        {l.Ledger_subgroup_name_RL}
-                      </td>
-                      <td className="text-start">{l.L_group_name}</td>
-                      <td>{l.Seqno}</td>
-                      <td>{l.Code}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      ) : 
+       <div
+    className="bg-white rounded shadow mx-auto"
+    style={{ maxWidth: "1000px", padding: "10px" }}
+  >
+    {/* Header */}
+    <div
+      className="text-white rounded p-2 text-center"
+      style={{ backgroundColor: "#365b80" }}
+    >
+      <h5 className="mb-0 fw-semibold">Ledger Sub Group</h5>
+    </div>
+      
+      <div className="mt-2">
+      <CommonTable
+        columns={columns}
+        data={filteredLedgerSubGroups}
+        onEdit={(index) => handleEdit(filteredLedgerSubGroups[index])}
+        onDelete={(index) => handleDelete(filteredLedgerSubGroups[index])}
+        searchValue={searchName}
+        onSearchChange={setSearchName}
+        onClose={() => {
+          setShowTable(false);
+          handleClear();
+          setSearchName("");
+        }}
+      />
+      </div>
+      </div>
+      }
     </div>
   );
 }
