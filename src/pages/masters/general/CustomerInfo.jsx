@@ -850,81 +850,76 @@ const CustomerInfo = () => {
 
       {/* ================= TABLE ================= */}
 
-     <CommonTable
-  title="Customer List"
-  data={filteredCustomers}
-  searchValue={searchTerm}
-  onSearchChange={setSearchTerm}
-  onClose={() => setShowTable(false)}
-  onEdit={handleEdit}
-  onDelete={handleDelete}
-  columns={[
-    { header: "Account No", accessor: "Cust_no" },
-    { header: "Card No", accessor: "Card_no" },
+      <CommonTable
+        title="Customer List"
+        data={filteredCustomers}
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        onClose={() => setShowTable(false)}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        columns={[
+          { header: "Account No", accessor: "Cust_no" },
+          { header: "Card No", accessor: "Card_no" },
 
-    {
-      header: "Prefix",
-      render: (row) =>
-        prefixes.find((p) => p.Prefix_id === row.Prefix_id)?.Prefix || "",
-    },
+          {
+            header: "Prefix",
+            render: (row) =>
+              prefixes.find((p) => p.Prefix_id === row.Prefix_id)?.Prefix || "",
+          },
 
-    {
-      header: "Name",
-      render: (row) =>
-        [
-          row.First_name,
-          row.Middle_name,
-          row.Last_name,
-          row.Append,
-        ]
-          .filter(Boolean)
-          .join(" "),
-    },
+          {
+            header: "Name",
+            render: (row) =>
+              [row.First_name, row.Middle_name, row.Last_name, row.Append]
+                .filter(Boolean)
+                .join(" "),
+          },
 
-    { header: "Address", accessor: "Address" },
+          { header: "Address", accessor: "Address" },
 
-    {
-      header: "State",
-      render: (row) =>
-        states.find((s) => s.State_id === row.State_id)?.State || "",
-    },
+          {
+            header: "State",
+            render: (row) =>
+              states.find((s) => s.State_id === row.State_id)?.State || "",
+          },
 
-    {
-      header: "District",
-      render: (row) =>
-        districts.find((d) => d.Dist_id === row.District_id)?.Dist || "",
-    },
+          {
+            header: "District",
+            render: (row) =>
+              districts.find((d) => d.Dist_id === row.District_id)?.Dist || "",
+          },
 
-    {
-      header: "Block",
-      render: (row) =>
-        talukas.find((t) => t.Taluka_id === row.Taluka_id)?.Taluka || "",
-    },
+          {
+            header: "Block",
+            render: (row) =>
+              talukas.find((t) => t.Taluka_id === row.Taluka_id)?.Taluka || "",
+          },
 
-    {
-      header: "City",
-      render: (row) =>
-        cities.find((c) => c.City_id === row.City_id)?.City || "",
-    },
+          {
+            header: "City",
+            render: (row) =>
+              cities.find((c) => c.City_id === row.City_id)?.City || "",
+          },
 
-    { header: "Gender", accessor: "Gender_name" },
+          { header: "Gender", accessor: "Gender_name" },
 
-    {
-      header: "DOB",
-      render: (row) => formatDate(row.DOB),
-    },
+          {
+            header: "DOB",
+            render: (row) => formatDate(row.DOB),
+          },
 
-    {
-      header: "Opening Date",
-      render: (row) => formatDate(row.Acc_start_date),
-    },
+          {
+            header: "Opening Date",
+            render: (row) => formatDate(row.Acc_start_date),
+          },
 
-    { header: "Mobile", accessor: "Phone_no" },
-    { header: "Accountant", accessor: "Cust_type" },
-    { header: "Voter", accessor: "Matdar_prakar" },
-    { header: "Status", accessor: "Status_text" },
-  ]}
-/>
+          { header: "Mobile", accessor: "Phone_no" },
+          { header: "Accountant", accessor: "Cust_type" },
+          { header: "Voter", accessor: "Matdar_prakar" },
+          { header: "Status", accessor: "Status_text" },
+        ]}
+      />
     </div>
   );
 };
