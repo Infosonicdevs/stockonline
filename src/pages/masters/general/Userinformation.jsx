@@ -28,6 +28,35 @@ function Userinformation() {
     accountNo: "",
   });
 
+
+  const columns = [
+    { label: "Account No", accessor: "Cust_no" },
+    { label: "Employee Code", accessor: "userId" },
+    { label: "Full Name", accessor: "fullName", className: "text-start" },
+    {
+      label: "Birth Date",
+      accessor: "birthDate",
+      render: (value) => formatDate(value),
+    },
+    { label: "Mobile No", accessor: "mobileNo" },
+    { label: "Branch", accessor: "branchName" },
+    { label: "Role", accessor: "roleName", className: "text-start" },
+    {
+      label: "Joining Date",
+      accessor: "joiningDate",
+      render: (value) => formatDate(value),
+    },
+    { label: "Qualification", accessor: "qualification" },
+    { label: "Email", accessor: "email" },
+    { label: "Status", accessor: "status" },
+    {
+      label: "Inactive Date",
+      accessor: "inactiveDate",
+      render: (value, row) =>
+        row.status === "Inactive" ? formatDate(value) : "-",
+    },
+  ];
+
   const username = localStorage.getItem("username");
   const [searchFullName, setSearchFullName] = useState("");
   const [users, setUsers] = useState([]);
@@ -399,7 +428,7 @@ function Userinformation() {
       <div
         className="bg-white p-4 rounded shadow mx-auto"
         style={{
-          maxWidth: "900px",
+          maxWidth: showTable ? "100%" : "950px",
         }}
       >
         {/* Header */}
@@ -722,67 +751,22 @@ function Userinformation() {
               </button>
             </div>
           </form>
-        ) : <CommonTable
-  title="User List"
-  data={filteredUsers}
-  searchValue={searchFullName}
-  onSearchChange={setSearchFullName}
-  onClose={() => {
-    setShowTable(false);
-    handleClear();
-  }}
-  onEdit={(row) => {
-    const index = users.findIndex((u) => u.empId === row.empId);
-    handleEdit(index);
-  }}
-  onDelete={(row) => {
-    const index = users.findIndex((u) => u.empId === row.empId);
-    handleDelete(index);
-  }}
-  columns={[
-    { header: "Account No", accessor: "Cust_no" },
-    { header: "Employee Code", accessor: "userId" },
-
-    {
-      header: "Full Name",
-      render: (row) => row.fullName,
-    },
-
-    {
-      header: "Birth Date",
-      render: (row) => formatDate(row.birthDate),
-    },
-
-    { header: "Mobile No", accessor: "mobileNo" },
-
-    {
-      header: "Branch",
-      render: (row) => row.branchName,
-    },
-
-    {
-      header: "Role",
-      render: (row) => row.roleName,
-    },
-
-    {
-      header: "Joining Date",
-      render: (row) => formatDate(row.joiningDate),
-    },
-
-    { header: "Qualification", accessor: "qualification" },
-    { header: "Email", accessor: "email" },
-    { header: "Status", accessor: "status" },
-
-    {
-      header: "Inactive Date",
-      render: (row) =>
-        row.status === "Inactive"
-          ? formatDate(row.inactiveDate)
-          : "-",
-    },
-  ]}
-/>}
+        ) : 
+        <div style={{ paddingTop: "5px" }}>
+        <CommonTable
+          columns={columns}
+          data={filteredUsers}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          searchValue={searchFullName}
+          onSearchChange={setSearchFullName}
+          onClose={() => {
+            setShowTable(false);
+            handleClear();
+          }}
+        />
+        </div>
+        }
       </div>
     </div>
   );

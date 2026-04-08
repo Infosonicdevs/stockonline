@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import apiClient from "../../../api/client";
 import CommonTable from "../../../components/navigation/CommonTable";
+
 import {
   getSuppliers,
   getLocations,
@@ -45,6 +46,27 @@ function SupplierInfo() {
   const [cities, setCities] = useState([]);
   const [showTable, setShowTable] = useState(false);
   const [searchSupplier, setSearchSupplier] = useState(""); // search text
+
+  const columns = [
+  {
+    label: "Sr. No",
+    render: (val, row, index) => index + 1,
+  },
+  { label: "Code", accessor: "Vend_code" },
+  { label: "Name", accessor: "Vend_name" },
+  { label: "Address", accessor: "Address" },
+  { label: "State", accessor: "State" },
+  { label: "District", accessor: "Dist" },
+  { label: "Taluka", accessor: "Taluka" },
+  { label: "City", accessor: "City" },
+  { label: "Mobile", accessor: "Contact_no" },
+  { label: "Email", accessor: "Email" },
+  { label: "GST", accessor: "GST_no" },
+  { label: "Bank Name", accessor: "Bank_name" },
+  { label: "Account No", accessor: "Bank_acc_no" },
+  { label: "Branch Name", accessor: "Bank_branch" },
+  { label: "IFSC Code", accessor: "IFSC_code" },
+];
 
   // Fetch suppliers & locations
   useEffect(() => {
@@ -308,7 +330,7 @@ function SupplierInfo() {
       <div
         className="bg-white p-4 rounded shadow mx-auto"
         style={{
-          maxWidth: showTable ? "80%" : "750px",
+          maxWidth: showTable ? "100%" : "750px",
           overflowX: showTable ? "auto" : "visible",
         }}
       >
@@ -574,42 +596,27 @@ function SupplierInfo() {
               </button>
             </div>
           </form>
-        ) :<CommonTable
-  title="Supplier List"
+        ) : (
+          <div
+            className="table-responsive mt-2"
+          >
+
+{/* Common Table */}
+
+<CommonTable
+  columns={columns}
   data={filteredSuppliers}
+  onEdit={(index) => handleEdit(filteredSuppliers[index])}
+  onDelete={(index) => handleDelete(filteredSuppliers[index].Vend_id)}
   searchValue={searchSupplier}
   onSearchChange={setSearchSupplier}
   onClose={() => {
     setShowTable(false);
     handleClear();
   }}
-  onEdit={(row) => handleEdit(row)}
-  onDelete={(row) => handleDelete(row.Vend_id)}
-  columns={[
-    {
-      header: "Sr. No",
-      render: (row) =>
-        filteredSuppliers.findIndex(
-          (s) => s.Vend_id === row.Vend_id
-        ) + 1,
-    },
-
-    { header: "Code", accessor: "Vend_code" },
-    { header: "Name", accessor: "Vend_name" },
-    { header: "Address", accessor: "Address" },
-    { header: "State", accessor: "State" },
-    { header: "District", accessor: "Dist" },
-    { header: "Taluka", accessor: "Taluka" },
-    { header: "City", accessor: "City" },
-    { header: "Mobile", accessor: "Contact_no" },
-    { header: "Email", accessor: "Email" },
-    { header: "GST", accessor: "GST_no" },
-    { header: "Bank Name", accessor: "Bank_name" },
-    { header: "Account No", accessor: "Bank_acc_no" },
-    { header: "Branch Name", accessor: "Bank_branch" },
-    { header: "IFSC Code", accessor: "IFSC_code" },
-  ]}
-/>}
+/>
+          </div>
+        )}
       </div>
     </div>
   );

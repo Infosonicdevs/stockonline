@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CommonTable from "../../../components/navigation/CommonTable";
 import {
   getBankAccounts,
   saveBankAccount,
@@ -26,6 +27,45 @@ function BankAccountForm() {
   const [editIndex, setEditIndex] = useState(null);
   const [showTable, setShowTable] = useState(false);
   const [searchName, setSearchName] = useState("");
+
+  const columns = [
+    {
+      label: "Sr.No",
+      render: (val, row, index) => index + 1,
+    },
+    {
+      label: "Bank Name",
+      accessor: "bankName",
+    },
+    {
+      label: "Account No",
+      accessor: "accountNo",
+    },
+    {
+      label: "Account Type",
+      accessor: "accountType",
+    },
+    {
+      label: "Branch",
+      accessor: "branch",
+    },
+    {
+      label: "IFSC",
+      accessor: "ifsc",
+    },
+    {
+      label: "Customer No",
+      accessor: "customerNo",
+    },
+    {
+      label: "Opening Amt",
+      accessor: "openingAmount",
+    },
+    {
+      label: "Ledger",
+      accessor: "ledgerName",
+    },
+  ];
 
   useEffect(() => {
     fetchBankAccounts();
@@ -166,7 +206,10 @@ function BankAccountForm() {
     <div className="container my-2" style={{ fontSize: "14px" }}>
       <div
         className="bg-white p-4 rounded shadow mx-auto"
-        style={{ maxWidth: "600px" }}
+        style={{
+          maxWidth: showTable ? "100%" : "600px",
+    
+        }}
       >
         {/* HEADER */}
         <div
@@ -334,111 +377,19 @@ function BankAccountForm() {
 
         {/* TABLE  */}
         {showTable && (
-          <div
-            className="table-responsive mt-2"
-            style={{
-              maxHeight: "60vh",
-              overflowY: "auto",
-              overflowX: "auto",
-              minWidth: "500px",
-            }}
-          >
-            <div
-              className="d-flex align-items-center justify-content-between mb-2 gap-2"
-              style={{
-                position: "sticky",
-                top: 0,
-                background: "white",
-                zIndex: 100,
-                padding: "5px 0",
-                borderBottom: "1px solid #ddd",
+            <CommonTable
+              columns={columns}
+              data={filteredList}
+              onEdit={(index) => handleEdit(index)}
+              onDelete={(index) => handleDelete(index)}
+              searchValue={searchName}
+              onSearchChange={setSearchName}
+              onClose={() => {
+                setShowTable(false);
+                handleClear();
+                setSearchName("");
               }}
-            >
-              <button
-                className="btn btn-sm btn-secondary"
-                onClick={() => {
-                  setShowTable(false);
-                  handleClear();
-                  setSearchName("");
-                }}
-              >
-                Close
-              </button>
-
-              <div
-                className="d-flex align-items-center gap-2"
-                style={{ marginRight: "300px" }}
-              >
-                <i className="bi bi-search"></i>
-                <label className="fw-semibold text-secondary small mb-0">
-                  Search
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  style={{ width: "250px", height: "25px" }}
-                  value={searchName}
-                  onChange={(e) => setSearchName(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <table
-              className="table table-bordered table-sm table-striped text-center"
-              style={{ whiteSpace: "nowrap", Width: "750px" }}
-            >
-              <thead className="table-light" style={{ fontSize: "13px" }}>
-                <tr>
-                  <th className="table-column-bg-heading">Actions</th>
-                  <th className="table-column-bg-heading">Sr.No</th>
-                  <th className="table-column-bg-heading">Bank Name</th>
-                  <th className="table-column-bg-heading">Account No</th>
-                  <th className="table-column-bg-heading">Account Type</th>
-                  <th className="table-column-bg-heading">Branch</th>
-                  <th className="table-column-bg-heading">IFSC</th>
-                  <th className="table-column-bg-heading">Customer No</th>
-                  <th className="table-column-bg-heading">Opening Amt</th>
-                  <th className="table-column-bg-heading">Ledger</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredList.length === 0 ? (
-                  <tr>
-                    <td colSpan="10">No records found</td>
-                  </tr>
-                ) : (
-                  filteredList.map((item, index) => (
-                    <tr key={index}>
-                      <td>
-                        <button
-                          className="btn btn-info btn-sm me-1"
-                          onClick={() => handleEdit(index)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(index)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                      <td>{index + 1}</td>
-                      <td>{item.bankName}</td>
-                      <td>{item.accountNo}</td>
-                      <td>{item.accountType}</td>
-                      <td>{item.branch}</td>
-                      <td>{item.ifsc}</td>
-                      <td>{item.customerNo}</td>
-                      <td>{item.openingAmount}</td>
-                      <td>{item.ledgerName}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+            />
         )}
       </div>
     </div>

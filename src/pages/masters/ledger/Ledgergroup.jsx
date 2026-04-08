@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { getPatrakTypes, getCrDR } from "../../../services/masters/ledgerGroup";
 import apiClient from "../../../api/client";
 import { validateRequiredFields } from "../../../utils/validator";
+import CommonTable from "../../../components/navigation/CommonTable";
 
 function LedgerForm() {
   const [formData, setFormData] = useState({
@@ -22,6 +23,41 @@ function LedgerForm() {
   const [patrakTypes, setPatrakTypes] = useState([]);
   const [crDrs, setCrDrs] = useState([]);
   const username = localStorage.getItem("username");
+
+  const columns = [
+  {
+    label: "Sr.No",
+    render: (val, row, index) => index + 1,
+  },
+  {
+    label: "Name",
+    accessor: "L_group_name",
+    className: "text-start",
+  },
+  {
+    label: "Name RL",
+    accessor: "L_group_name_RL",
+    className: "text-start",
+  },
+  {
+    label: "Patrak",
+    render: (val, row) =>
+      patrakTypes.find((p) => p.Patrak_id === row.Patrak_id)?.Patrak,
+  },
+  {
+    label: "CR/DR",
+    render: (val, row) =>
+      crDrs.find((c) => c.CrDr_id === row.crdr_id)?.CrDr,
+  },
+  {
+    label: "Seq",
+    accessor: "Seqno",
+  },
+  {
+    label: "Code",
+    accessor: "Code",
+  },
+];
 
   // searchbar
   const filteredLedgers = ledgers.filter((l) => {
@@ -332,128 +368,37 @@ function LedgerForm() {
             </div>
           </form>
         </div>
-      ) : (
-        <div
-          className="bg-white p-3 rounded mx-auto shadow"
-          style={{ maxWidth: "1000px" }}
-        >
-          {/* Header */}
-          <div
-            className="text-white rounded p-2 text-center"
-            style={{ backgroundColor: "#365b80" }}
-          >
-            <h5 className="mb-0 fw-semibold">Ledger Group</h5>
-          </div>
-          <div className="d-flex justify-content-between align-items-center mb-2 mt-2">
-            {/* Close Button */}
-            <button
-              className="btn btn-sm btn-secondary"
-              onClick={() => {
-                setShowTable(false);
-                handleClear();
-              }}
-            >
-              Close
-            </button>
+      ) :  (
+  <div
+    className="bg-white rounded shadow mx-auto"
+    style={{ maxWidth: "1000px", padding: "10px" }}
+  >
+    {/* Header */}
+    <div
+      className="text-white rounded p-2 text-center"
+      style={{ backgroundColor: "#365b80" }}
+    >
+      <h5 className="mb-0 fw-semibold">Ledger Group</h5>
+    </div>
 
-            {/* Search Box */}
-            <div className="d-flex align-items-center gap-2">
-              <i className="bi bi-search"></i>
-              <label className="fw-semibold text-secondary small mb-0">
-                Search{" "}
-              </label>
-              <input
-                type="text"
-                className="form-control "
-                style={{
-                  width: "280px",
-                  height: "25px",
-                  marginRight: "500px",
-                }}
-                value={searchName}
-                onChange={(e) => setSearchName(e.target.value)}
-              />
-            </div>
-          </div>
 
-          <div
-            className="table-responsive mt-2"
-            style={{
-              maxHeight: "60vh",
-              overflowY: "auto",
-              overflowX: "auto",
-            }}
-          >
-            <table
-              className="table table-bordered text-center table-sm table-striped"
-              style={{
-                whiteSpace: "nowrap",
-                width: "max-content",
-                minWidth: "100%",
-              }}
-            >
-              <thead
-                className="table-light"
-                style={{
-                  fontSize: "13px",
-                  fontWeight: "semibold",
-                }}
-              >
-                <tr>
-                  <th className="table-column-bg-heading">Actions</th>
-                  <th className="table-column-bg-heading">Sr.No.</th>
-                  <th className="table-column-bg-heading">Name</th>
-                  <th className="table-column-bg-heading">Name RL</th>
-                  <th className="table-column-bg-heading">Patrak</th>
-                  <th className="table-column-bg-heading">CR/DR</th>
-                  <th className="table-column-bg-heading">Seq</th>
-                  <th className="table-column-bg-heading">Code</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLedgers.length === 0 ? (
-                  <tr>
-                    <td colSpan="8">No Records</td>
-                  </tr>
-                ) : (
-                  filteredLedgers.map((l, i) => (
-                    <tr key={l.L_group_id}>
-                      <td>
-                        <button
-                          className="btn btn-info btn-sm me-1"
-                          onClick={() => handleEdit(l)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(l)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                      <td>{i + 1}</td>
-                      <td className="text-start">{l.L_group_name}</td>
-                      <td className="text-start">{l.L_group_name_RL}</td>
-                      <td>
-                        {
-                          patrakTypes.find((p) => p.Patrak_id === l.Patrak_id)
-                            ?.Patrak
-                        }
-                      </td>
-                      <td>
-                        {crDrs.find((c) => c.CrDr_id === l.crdr_id)?.CrDr}
-                      </td>
-                      <td>{l.Seqno}</td>
-                      <td>{l.Code}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+    <div className="mt-2">
+      <CommonTable
+        columns={columns}
+        data={filteredLedgers}
+        onEdit={(index) => handleEdit(filteredLedgers[index])}
+        onDelete={(index) => handleDelete(filteredLedgers[index])}
+        searchValue={searchName}
+        onSearchChange={setSearchName}
+        onClose={() => {
+          setShowTable(false);
+          handleClear();
+          setSearchName("");
+        }}
+      />
+    </div>
+  </div>
+)}
     </div>
   );
 }

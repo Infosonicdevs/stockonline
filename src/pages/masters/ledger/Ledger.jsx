@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import apiClient from "../../../api/client";
+import CommonTable from "../../../components/navigation/CommonTable";
 import {
   getPatrakTypes,
   getCrDR,
@@ -42,7 +43,49 @@ function LedgerForm() {
   const [showTable, setShowTable] = useState(false);
   const [editData, setEditData] = useState(null);
   const username = localStorage.getItem("username");
-  
+
+  const columns = [
+    {
+      label: "Sr.No",
+      render: (val, row, index) => index + 1,
+    },
+    {
+      label: "Ledger No",
+      accessor: "Ledger_no",
+    },
+    {
+      label: "Ledger Name",
+      accessor: "Ledger_name",
+    },
+    {
+      label: "Ledger Name RL",
+      accessor: "Ledger_name_RL",
+    },
+    {
+      label: "Ledger Group",
+      accessor: "L_group_name",
+    },
+    {
+      label: "Ledger Subgroup",
+      accessor: "Ledger_subgroup_name",
+    },
+    {
+      label: "Ledger Type",
+      accessor: "Ledger_type_name",
+    },
+    {
+      label: "Personal",
+      render: (val, row) => (row.Is_personal === 1 ? "Yes" : "No"),
+    },
+    {
+      label: "Customer Type",
+      accessor: "Cust_type_name",
+    },
+    {
+      label: "Accountable",
+      render: (val, row) => (row.Accountable === 1 ? "Yes" : "No"),
+    },
+  ];
 
   const filteredLedgers = ledgers.filter((l) => {
     const term = searchTerm.trim().toLowerCase();
@@ -669,127 +712,36 @@ function LedgerForm() {
           </form>
         </div>
       ) : (
-        <div
-          className="bg-white p-3 rounded mx-auto shadow"
-          style={{ maxWidth: "1000px" }}
-        >
-          {/* Header */}
-          <div
-            className="text-white rounded p-2 text-center"
-            style={{ backgroundColor: "#365b80" }}
-          >
-            <h5 className="mb-0 fw-semibold">Ledger</h5>
-          </div>
-          <div className="d-flex align-items-center justify-content-between mb-2 gap-2 mt-2">
-            {/* Close Button */}
-            <button
-              className="btn btn-sm btn-secondary"
-              onClick={() => {
-                setShowTable(false);
-                handleClear();
-                setSearchTerm("");
-              }}
-            >
-              Close
-            </button>
-            {/* Ledger Name Search */}
-            <div className="d-flex align-items-center gap-2">
-              <i className="bi bi-search"></i>
-              <label className="fw-semibold text-secondary small mb-0">
-                Search
-              </label>
-              <input
-                type="text"
-                className="form-control "
-                style={{
-                  width: "420px",
-                  marginRight: "400px",
-                  height: "25px",
-                }}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search all columns..."
-              />
-            </div>
-          </div>
-          <div className="mt-2">
-            <div
-              className="table-responsive mt-2"
-              style={{
-                maxHeight: "60vh",
-                overflowY: "auto",
-                overflowX: "auto",
-              }}
-            >
-              <table
-                className="table table-bordered text-center table-sm table-striped"
-                style={{
-                  whiteSpace: "nowrap",
-                  width: "max-content",
-                  minWidth: "100%",
-                }}
-              >
-                <thead
-                  className="table-light"
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: "semibold",
-                  }}
-                >
-                  <tr>
-                    <th className="table-column-bg-heading">Actions</th>
-                    <th className="table-column-bg-heading">Sr.No.</th>
-                    <th className="table-column-bg-heading">Ledger No</th>
-                    <th className="table-column-bg-heading">Ledger Name</th>
-                    <th className="table-column-bg-heading">Ledger Name RL</th>
-                    <th className="table-column-bg-heading">Ledger Group</th>
-                    <th className="table-column-bg-heading">Ledger Subgroup</th>
-                    <th className="table-column-bg-heading">Ledger Type</th>
-                    <th className="table-column-bg-heading">Personal</th>
-                    <th className="table-column-bg-heading">Customer Type</th>
-                    <th className="table-column-bg-heading">Accountable</th>
-                  </tr>
-                </thead>
-                <tbody style={{ fontSize: "13px", fontWeight: "normal" }}>
-                  {filteredLedgers.length === 0 ? (
-                    <tr>
-                      <td colSpan="11">No records found</td>
-                    </tr>
-                  ) : (
-                    filteredLedgers.map((l, index) => (
-                      <tr key={l.Ledger_id}>
-                        <td>
-                          <button
-                            className="btn btn-info btn-sm me-1"
-                            onClick={() => handleEdit(l)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleDelete(l)}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                        <td>{index + 1}</td>
-                        <td>{l.Ledger_no}</td>
-                        <td className="text-start">{l.Ledger_name}</td>
-                        <td className="text-start">{l.Ledger_name_RL}</td>
-                        <td className="text-start">{l.L_group_name}</td>
-                        <td className="text-start">{l.Ledger_subgroup_name}</td>
-                        <td className="text-start">{l.Ledger_type_name}</td>
-                        <td>{l.Is_personal === 1 ? "Yes" : "No"}</td>
-                        <td>{l.Cust_type_name}</td>
-                        <td>{l.Accountable === 1 ? "Yes" : "No"}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+
+        showTable && (
+       <div
+  className="bg-white rounded shadow mx-auto"
+  style={{ maxWidth: "1000px", padding: "10px" }}
+>
+  <div
+    className="text-white rounded p-2 text-center"
+    style={{ backgroundColor: "#365b80" }}
+  >
+    <h5 className="mb-0 fw-semibold text-center">Ledger List</h5>
+  </div>
+
+  <div className="mt-2">
+    <CommonTable
+      columns={columns}
+      data={filteredLedgers}
+      onEdit={(index) => handleEdit(filteredLedgers[index])}
+      onDelete={(index) => handleDelete(filteredLedgers[index])}
+      searchValue={searchTerm}
+      onSearchChange={setSearchTerm}
+      onClose={() => {
+        setShowTable(false);
+        handleClear();
+        setSearchTerm("");
+      }}
+    />
+  </div>
+</div>
+        )
       )}
     </div>
   );

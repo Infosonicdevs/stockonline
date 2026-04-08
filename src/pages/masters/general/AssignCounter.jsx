@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CommonTable from "../../../components/navigation/CommonTable";
 import {
   getAssignedCounters,
   saveAssignedCounter,
@@ -46,6 +47,29 @@ function AssignCounter() {
   const [editIndex, setEditIndex] = useState(null);
   const [showTable, setShowTable] = useState(false);
   const [searchName, setSearchName] = useState("");
+
+  const columns = [
+    {
+      label: "Sr.No",
+      render: (val, row, index) => index + 1,
+    },
+    {
+      label: "Counter",
+      accessor: "Counter_name",
+    },
+    {
+      label: "Employee",
+      accessor: "Emp_name",
+    },
+    {
+      label: "Balance",
+      accessor: "Opn_bal",
+    },
+    {
+      label: "Status",
+      render: (val, row) => (row.Status === "1" ? "Open" : "Closed"),
+    },
+  ];
 
   useEffect(() => {
     fetchAssignedCounters();
@@ -309,12 +333,13 @@ function AssignCounter() {
             )}
 
             <div className="text-center mt-3 d-flex justify-content-center gap-2">
-              <button type="submit" className="button-save">
+              <button type="submit" className="button-save"   style={{ fontSize: "14px" }}>
                 {editIndex !== null ? "Update" : "Save"}
               </button>
               <button
                 type="button"
                 className="button-clear"
+                  style={{ fontSize: "14px" }}
                 onClick={handleClear}
               >
                 Clear
@@ -322,6 +347,7 @@ function AssignCounter() {
               <button
                 type="button"
                 className="button-list"
+                  style={{ fontSize: "14px" }}
                 onClick={() => setShowTable(true)}
               >
                 Show List
@@ -331,70 +357,19 @@ function AssignCounter() {
         )}
 
         {showTable && (
-          <div className="table-responsive mt-2" style={{ maxHeight: "60vh" }}>
-            <div className="d-flex align-items-center justify-content-between mb-2 gap-2 position-sticky top-0 bg-white z-3 py-2 border-bottom">
-              <button
-                className="btn btn-sm btn-secondary"
-                onClick={() => setShowTable(false)}
-              >
-                Back to Form
-              </button>
-              <div className="d-flex align-items-center gap-2">
-                <input
-                  type="text"
-                  className="form-control form-control-sm"
-                  style={{ width: "200px" }}
-                  value={searchName}
-                  onChange={(e) => setSearchName(e.target.value)}
-                  placeholder="Search..."
-                />
-              </div>
-            </div>
-
-            <table className="table table-bordered table-sm table-striped text-center">
-              <thead className="table-light">
-                <tr>
-                  <th>Actions</th>
-                  <th>Sr.No</th>
-                  <th>Counter</th>
-                  <th>Employee</th>
-                  <th>Balance</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredList.length === 0 ? (
-                  <tr>
-                    <td colSpan="8">No records found</td>
-                  </tr>
-                ) : (
-                  filteredList.map((item, index) => (
-                    <tr key={index}>
-                      <td>
-                        <button
-                          className="btn btn-info btn-sm me-1"
-                          onClick={() => handleEdit(index)}
-                        >
-                          <i className="bi bi-pencil-square"></i>
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(index)}
-                        >
-                          <i className="bi bi-trash"></i>
-                        </button>
-                      </td>
-                      <td>{index + 1}</td>
-                      <td>{item.Counter_name}</td>
-                      <td>{item.Emp_name}</td>
-                      <td>{item.Opn_bal}</td>
-                      <td>{item.Status === "1" ? "Open" : "Closed"}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+            <CommonTable
+              columns={columns}
+              data={filteredList}
+              onEdit={(index) => handleEdit(index)}
+              onDelete={(index) => handleDelete(index)}
+              searchValue={searchName}
+              onSearchChange={setSearchName}
+              onClose={() => {
+                setShowTable(false);
+                handleClear();
+                setSearchName("");
+              }}
+            />
         )}
       </div>
     </div>

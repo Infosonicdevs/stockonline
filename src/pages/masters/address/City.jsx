@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import apiClient from "../../../api/client";
 import { toast } from "react-toastify";
+import CommonTable from "../../../components/navigation/CommonTable";
 
 function City() {
   const [formData, setFormData] = useState({
@@ -13,7 +14,7 @@ function City() {
     cityNameEn: "",
     cityNameMr: "",
   });
-    const username = localStorage.getItem("username");
+  const username = localStorage.getItem("username");
   const [searchText, setSearchText] = useState("");
   const [citiesData, setCitiesData] = useState([]);
   const [showTable, setShowTable] = useState(false);
@@ -23,7 +24,19 @@ function City() {
   const [states, setStates] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [talukas, setTalukas] = useState([]);
-  
+
+  const columns = [
+    {
+      label: "Sr. No",
+      render: (val, row, index) => index + 1,
+    },
+    {
+      label: "Taluka",
+      render: (val, row) => getTalukaName(row.Taluka_id),
+    },
+    { label: "City", accessor: "City" },
+  ];
+
 
   // searchbar
 
@@ -69,10 +82,10 @@ function City() {
     return dist ? dist.Dist : "";
   };
 
-const getTalukaName = (talukaId) => {
-  const t = allTalukas.find((t) => Number(t.Taluka_id) === Number(talukaId));
-  return t ? t.Taluka : "";
-};
+  const getTalukaName = (talukaId) => {
+    const t = allTalukas.find((t) => Number(t.Taluka_id) === Number(talukaId));
+    return t ? t.Taluka : "";
+  };
   const filteredCities = citiesData.filter((c) => {
     const term = searchText.trim().toLowerCase();
     if (!term) return true;
@@ -196,7 +209,7 @@ const getTalukaName = (talukaId) => {
     setShowTable(false);
   };
   return (
-    <div className="container my-1"style={{fontSize:"14px"}}>
+    <div className="container my-1" style={{ fontSize: "14px" }}>
       <div
         className="bg-white p-4 rounded shadow mx-auto"
         style={{ maxWidth: "700px" }}
@@ -373,101 +386,22 @@ const getTalukaName = (talukaId) => {
               </button>
             </div>
           </form>
-        ) : (
-          <div className="mt-2">
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <button
-                className="btn btn-sm btn-secondary"
-                onClick={() => {
-                  setShowTable(false);
-                  handleClear();
-                }}
-              >
-                Close
-              </button>
-
-              <div className="d-flex align-items-center gap-2">
-                <i className="bi bi-search"></i>
-                <label className="fw-semibold small mb-0">Search</label>
-                <input
-                  type="text"
-                  className="form-control "
-                  style={{
-                    width: "230px",
-                    height: "25px",
-                    marginRight: "250px",
-                  }}
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div
-              className="table-responsive mt-2"
-              style={{
-                maxHeight: "60vh",
-                overflowY: "auto",
-                overflowX: "auto",
+        ) :
+          <div style={{ paddingTop: "5px" }}>
+            <CommonTable
+              columns={columns}
+              data={filteredCities}
+              onEdit={(index) => handleEdit(filteredCities[index])}
+              onDelete={(index) => handleDelete(filteredCities[index])}
+              searchValue={searchText}
+              onSearchChange={setSearchText}
+              onClose={() => {
+                setShowTable(false);
+                handleClear();
               }}
-            >
-              <table
-                className="table table-bordered text-center table-sm table-striped"
-                style={{
-                  whiteSpace: "nowrap",
-                  width: "max-content",
-                  minWidth: "100%",
-                }}
-              >
-                <thead
-                  className="table-light"
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: "semibold",
-                  }}
-                >
-                  <tr>
-                    <th className="table-column-bg-heading">Actions</th>
-                    <th className="table-column-bg-heading">Sr. No.</th>
-                    <th className="table-column-bg-heading">Taluka</th>
-                    <th className="table-column-bg-heading">City</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredCities.length === 0 ? (
-                    <tr>
-                      <td colSpan="4" className="text-center">
-                        No records found
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredCities.map((c, i) => (
-                      <tr key={c.City_id}>
-                        <td>
-                          <button
-                            className="btn btn-info btn-sm me-1"
-                            onClick={() => handleEdit(c)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleDelete(c)}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                        <td>{i + 1}</td>
-                        <td>{getTalukaName(c.Taluka_id)}</td>
-                        <td>{c.City}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+            />
           </div>
-        )}
+        }
       </div>
     </div>
   );

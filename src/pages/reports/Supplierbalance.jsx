@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CommonTable from "../../components/navigation/CommonTable";
 import {
   getSuppliers,
   getSupplierList,
@@ -22,6 +23,35 @@ function Supplierbalance() {
   const [supplierList, setSupplierList] = useState([]);
   const [showTable, setShowTable] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
+
+  const columns = [
+    {
+      label: "Sr. No",
+      render: (val, row, index) => index + 1,
+    },
+    {
+      label: "Supplier Code",
+      render: (val, row) => {
+        const supplier = supplierList.find(
+          (emp) => emp.Vend_id === row.Vend_id
+        );
+        return supplier?.Vend_code || "-";
+      },
+    },
+    {
+      label: "Supplier Name",
+      render: (val, row) => {
+        const supplier = supplierList.find(
+          (emp) => emp.Vend_id === row.Vend_id
+        );
+        return supplier?.Vend_name || "-";
+      },
+    },
+    {
+      label: "Amount",
+      render: (val, row) => Number(row.Amount).toFixed(2),
+    },
+  ];
 
   const filteredSuppliers =
     suppliers?.filter((s) => {
@@ -345,96 +375,24 @@ function Supplierbalance() {
             </div>
           </form>
         ) : (
-          <div
-            className="table-responsive mt-2"
-            style={{ maxHeight: "60vh", overflowY: "auto", overflowX: "auto" }}
-          >
-            <div className="d-flex align-items-center justify-content-between mb-2 gap-2">
-              <button
-                className="btn btn-sm btn-secondary"
-                onClick={() => {
-                  setShowTable(false);
-                  handleClear();
-                  setSearchName("");
-                }}
-              >
-                Close
-              </button>
-              <div className="d-flex align-items-center gap-2">
-                <i className="bi bi-search"></i>
-                <label className="fw-semibold text-secondary small mb-0">
-                  Search
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  style={{
-                    width: "250px",
-                    marginRight: "260px",
-                    height: "25px",
-                  }}
-                  value={searchName}
-                  onChange={(e) => setSearchName(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <table
-              className="table table-bordered text-center table-sm table-striped"
-              style={{
-                whiteSpace: "nowrap",
-                width: "max-content",
-                minWidth: "100%",
-              }}
-            >
-              <thead
-                className="table-light"
-                style={{ fontSize: "13px", fontWeight: "semibold" }}
-              >
-                <tr>
-                  <th>Actions</th>
-                  <th>Supplier No</th>
-                  <th>Supplier Code</th>
-                  <th>Supplier Name</th>
-                  <th>Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredSuppliers.length === 0 ? (
-                  <tr>
-                    <td colSpan="5">No records found</td>
-                  </tr>
-                ) : (
-                  (filteredSuppliers || []).map((s, index) => {
-                    const supplier = supplierList.find(
-                      (emp) => emp.Vend_id === s.Vend_id,
-                    );
-                    return (
-                      <tr key={s.Opn_bal_id}>
-                        <td>
-                          <button
-                            className="btn btn-info btn-sm me-1"
-                            onClick={() => handleEdit(s.Opn_bal_id)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleDelete(s.Opn_bal_id)}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                        <td>{index + 1}</td>
-                        <td>{supplier?.Vend_code || "-"}</td>
-                        <td>{supplier?.Vend_name || "-"}</td>
-                        <td>{Number(s.Amount).toFixed(2)}</td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+          <div style={{ paddingTop: "5px" }}>
+          <CommonTable
+            columns={columns}
+            data={filteredSuppliers}
+            onEdit={(index) =>
+              handleEdit(filteredSuppliers[index].Opn_bal_id)
+            }
+            onDelete={(index) =>
+              handleDelete(filteredSuppliers[index].Opn_bal_id)
+            }
+            searchValue={searchName}
+            onSearchChange={setSearchName}
+            onClose={() => {
+              setShowTable(false);
+              handleClear();
+              setSearchName("");
+            }}
+          />
           </div>
         )}
       </div>

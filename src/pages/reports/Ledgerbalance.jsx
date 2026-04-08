@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CommonTable from "../../components/navigation/CommonTable";
 import {
   getLedgers,
   getLedgerByNo,
@@ -25,6 +26,31 @@ function LedgerEntry() {
   const selectedLedger = ledgers.find((l) => l.Ledger_id === formData.ledgerID);
   const ledgerNo = selectedLedger?.Ledger_no || "";
   const ledgerName = selectedLedger?.Ledger_name || "";
+
+  const columns = [
+    {
+      label: "Sr. No",
+      render: (val, row, index) => index + 1,
+    },
+    {
+      label: "Ledger No",
+      render: (val, row) => {
+        const ledger = ledgers.find((l) => l.Ledger_id === row.L_id);
+        return ledger?.Ledger_no;
+      },
+    },
+    {
+      label: "Ledger Name",
+      render: (val, row) => {
+        const ledger = ledgers.find((l) => l.Ledger_id === row.L_id);
+        return ledger?.Ledger_name;
+      },
+    },
+    {
+      label: "Amount",
+      render: (val, row) => Number(row.Amt).toFixed(2),
+    },
+  ];
 
   //searchbar
   const filteredEntries = entries.filter((e) => {
@@ -185,7 +211,10 @@ function LedgerEntry() {
     <div className="container my-2">
       <div
         className="bg-white p-4 rounded shadow mx-auto"
-        style={{ maxWidth: "700px" }}
+     style={{
+          maxWidth: showTable ? "100%" : "700px",
+    
+        }}
       >
         <div
           className="text-white rounded mb-0 p-2 text-center"
@@ -317,95 +346,16 @@ function LedgerEntry() {
             </div>
           </form>
         ) : (
-          <div
-            className="table-responsive mt-2"
-            style={{ maxHeight: "60vh", overflowY: "auto", overflowX: "auto" }}
-          >
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <button
-                className="btn btn-sm btn-secondary"
-                onClick={() => setShowTable(false)}
-              >
-                Close
-              </button>
-
-              <div className="d-flex align-items-center gap-2">
-                <i className="bi bi-search"></i>
-                <label className="fw-semibold text-secondary small mb-0 ms-2">
-                  Search
-                </label>
-                <input
-                  type="text"
-                  className="form-control "
-                  style={{
-                    width: "230px",
-                    marginRight: "250px",
-                    height: "25px",
-                  }}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-            <table
-              className="table table-bordered text-center table-sm table-striped"
-              style={{
-                whiteSpace: "nowrap",
-                width: "max-content",
-                minWidth: "100%",
-              }}
-            >
-              <thead
-                className="table-light"
-                style={{ fontSize: "13px", fontWeight: "semibold" }}
-              >
-                <tr>
-                  <th className="table-column-bg-heading">Actions</th>
-                  <th className="table-column-bg-heading">Sr. No</th>
-                  <th className="table-column-bg-heading">Ledger No</th>
-                  <th
-                    className="table-column-bg-heading"
-                    style={{ width: "90px" }}
-                  >
-                    Ledger Name
-                  </th>
-                  <th className="table-column-bg-heading">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {entries.length === 0 ? (
-                  <tr>
-                    <td colSpan="5">No records found</td>
-                  </tr>
-                ) : (
-                  filteredEntries.map((e, index) => {
-                    const ledger = ledgers.find((l) => l.Ledger_id === e.L_id);
-                    return (
-                      <tr key={e.Opn_bal_id}>
-                        <td>
-                          <button
-                            className="btn btn-info btn-sm me-1"
-                            onClick={() => handleEdit(e.Opn_bal_id)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleDelete(e.Opn_bal_id)}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                        <td>{index + 1}</td>
-                        <td>{ledger?.Ledger_no}</td>
-                        <td className="text-start">{ledger?.Ledger_name}</td>
-                        <td>{Number(e.Amt).toFixed(2)}</td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+          <div style={{ paddingTop: "5px" }}>
+            <CommonTable
+              columns={columns}
+              data={filteredEntries}
+              onEdit={(index) => handleEdit(filteredEntries[index].Opn_bal_id)}
+              onDelete={(index) => handleDelete(filteredEntries[index].Opn_bal_id)}
+              searchValue={searchTerm}
+              onSearchChange={setSearchTerm}
+              onClose={() => setShowTable(false)}
+            />
           </div>
         )}
       </div>

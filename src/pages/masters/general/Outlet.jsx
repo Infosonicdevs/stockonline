@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CommonTable from "../../../components/navigation/CommonTable";
 import {
   getOutlets,
   saveOutlet,
@@ -39,6 +40,54 @@ function OutletCenterForm() {
   const [talukas, setTalukas] = useState([]);
   const [cities, setCities] = useState([]);
   const [allCities, setAllCities] = useState([]);
+
+  const columns = [
+  {
+    label: "Sr. No",
+    render: (val, row, index) => index + 1,
+  },
+  {
+    label: "Center Code",
+    render: (val, row) => row.centerCode,
+  },
+  {
+    label: "Center Name",
+    render: (val, row) => row.centerName,
+  },
+  {
+    label: "Address",
+    render: (val, row) => row.address,
+  },
+  {
+    label: "State",
+    render: (val, row) => row.stateName,
+  },
+  {
+    label: "District",
+    render: (val, row) => row.districtName,
+  },
+  {
+    label: "Taluka",
+    render: (val, row) => row.talukaName,
+  },
+  {
+    label: "City",
+    render: (val, row) => row.cityName,
+  },
+  {
+    label: "Mobile",
+    render: (val, row) => row.mobileNo,
+  },
+  {
+    label: "Contact",
+    render: (val, row) => row.contactName,
+  },
+  {
+    label: "Main Branch",
+    render: (val, row) =>
+      row.isMainBranch === 1 ? "Main Branch" : "No",
+  },
+];
 
   // When state changes → update districts
   const handleStateChange = (e) => {
@@ -353,7 +402,9 @@ function OutletCenterForm() {
     <div className="container my-2">
       <div
         className="bg-white p-4 rounded shadow mx-auto"
-        style={{ maxWidth: "650px" }}
+           style={{
+          maxWidth: showTable ? "100%" : "650px",
+     }}
       >
         <div
           className="text-white rounded mb-3 p-2 text-center"
@@ -573,129 +624,25 @@ function OutletCenterForm() {
         )}
 
         {/* Table View */}
-        {/* Table View */}
-        {showTable && (
-          <div
-            className="table-responsive mt-2"
-            style={{ maxHeight: "60vh", overflowY: "auto", overflowX: "auto" }}
-          >
-            <div
-              className="d-flex align-items-center justify-content-between mb-2 gap-2"
-              style={{
-                position: "sticky",
-                top: 0,
-                background: "white",
-                zIndex: 100,
-                padding: "5px 0",
-                borderBottom: "1px solid #ddd",
-              }}
-            >
-              {/* Close Button */}
-              <button
-                className="btn btn-sm btn-secondary"
-                onClick={() => {
-                  setShowTable(false);
-                  handleClear();
-                  setSearchName("");
-                }}
-              >
-                Close
-              </button>
-
-              {/* Search */}
-              <div className="d-flex align-items-center gap-2">
-                <i className="bi bi-search"></i>
-                <label className="fw-semibold text-secondary small mb-0">
-                  Search
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  style={{
-                    width: "250px",
-                    marginRight: "260px",
-                    height: "25px",
-                  }}
-                  value={searchName}
-                  onChange={(e) => setSearchName(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <table
-              className="table table-bordered table-sm table-striped text-center"
-              style={{
-                whiteSpace: "nowrap",
-                width: "max-content",
-                minWidth: "100%",
-              }}
-            >
-              <thead
-                className="table-light"
-                style={{ fontSize: "13px", fontWeight: "semibold" }}
-              >
-                <tr>
-                  <th className="table-column-bg-heading">Actions</th>
-                  <th className="table-column-bg-heading">Sr. No</th>
-                  <th className="table-column-bg-heading">Center Code</th>
-                  <th className="table-column-bg-heading">Center Name</th>
-                  <th className="table-column-bg-heading">Address</th>
-                  <th className="table-column-bg-heading">State</th>
-                  <th className="table-column-bg-heading">District</th>
-                  <th className="table-column-bg-heading">Taluka</th>
-                  <th className="table-column-bg-heading">City</th>
-                  <th className="table-column-bg-heading">Mobile No</th>
-                  <th className="table-column-bg-heading">Contact Name</th>
-                  <th className="table-column-bg-heading">Main Branch</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredCenters.length === 0 ? (
-                  <tr>
-                    <td colSpan="11">No records found</td>
-                  </tr>
-                ) : (
-                  filteredCenters.map((c, index) => (
-                    <tr key={index}>
-                      <td>
-                        <button
-                          className="btn btn-info btn-sm me-1"
-                          onClick={() => handleEdit(c)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(c.outletId)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                      <td>{index + 1}</td>
-                      <td>{c.centerCode}</td>
-                      <td className="text-start">{c.centerName}</td>
-                      <td className="text-start">{c.address}</td>
-                      <td>{c.stateName}</td>
-                      <td>{c.districtName}</td>
-                      <td>{c.talukaName}</td>
-                      <td>{c.cityName}</td>
-                      <td>{c.mobileNo}</td>
-                      <td>{c.contactName}</td>
-                      <td>
-                        {c.isMainBranch === 1 ? (
-                          <span className=" primary">Main Branch</span>
-                        ) : (
-                          <span className=" secondary">No</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+ {showTable && (
+  <div style={{ paddingTop: "5px" }}>
+    <CommonTable
+      columns={columns}
+      data={filteredCenters}
+      onEdit={(index) => handleEdit(filteredCenters[index])}
+      onDelete={(index) =>
+        handleDelete(filteredCenters[index].outletId)
+      }
+      searchValue={searchName}
+      onSearchChange={setSearchName}
+      onClose={() => {
+        setShowTable(false);
+        handleClear();
+        setSearchName("");
+      }}
+    />
+  </div>
+)}
       </div>
     </div>
   );
