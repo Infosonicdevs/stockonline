@@ -1,18 +1,11 @@
 import apiClient from "../../api/client";
-import { data } from "react-router-dom";
-
-
-
-export const getStockDetails = async () => {
-  return await apiClient.get(`/api/StockDetail`);
-};
-
-export const getStockGroups = async () => {
-  return await apiClient.get(`/api/StockGroup`);
-};
 
 export const getStockSubGroups = async () => {
   return await apiClient.get(`/api/StockSubGroup`);
+};
+
+export const getStockDetails = async () => {
+  return await apiClient.get(`/api/StockDetail`);
 };
 
 export const getUnits = async () => {

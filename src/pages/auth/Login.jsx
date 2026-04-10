@@ -9,6 +9,7 @@ import {
   loginUser,
   verifySystemUser,
 } from "../../services/auth.service";
+import { BASE_URL } from "../../api/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -251,7 +252,7 @@ function Login() {
   };
 
   const showLogoImage = (image) => {
-    const apiBase = import.meta.env.VITE_APIURL;
+    const apiBase = BASE_URL;
     const baseUrl = `${apiBase}/Content/Upload/Logo/`;
     if (image) {
       return `${baseUrl}${image}`;

@@ -39,6 +39,10 @@ import BankAccountForm from "./pages/masters/general/Bankaccountinfo";
 import Counter from "./pages/masters/general/Counter";
 import AssignCounter from "./pages/masters/general/AssignCounter";
 import Stockdistribution from "./pages/masters/stock/Stockdistribution";
+import Stockpurchase from "./pages/masters/stock/Stockpurchase";
+import Stocksale from "./pages/masters/stock/Stocksale";
+import Purchasereturn from "./pages/masters/stock/Purchasereturn";
+import Salesreturn from "./pages/masters/stock/Salesreturn";
 
 function App() {
   return (
@@ -79,11 +83,15 @@ function App() {
             <Route path="/stockgroup" element={<StockGroup />} />
             <Route path="/stocksubgroup" element={<StockSubGroup />} />
             <Route path="/stockdetails" element={<StockDetails />} />
-            <Route path="/stockdistribution" element={<Stockdistribution/>} />
+            <Route path="/stockdistribution" element={<Stockdistribution />} />
+            <Route path="/stockpurchase" element={<Stockpurchase />} />
+            <Route path="/stocksales" element={<Stocksale />} />
             <Route path="/gstslab" element={<GstSlab />} />
             <Route path="/bankaccountinfo" element={<BankAccountForm />} />
             <Route path="/counter" element={<Counter />} />
             <Route path="/assign-counter" element={<AssignCounter />} />
+            <Route path="/salesreturn" element={<Salesreturn />} />
+            <Route path="/purchasereturn" element={<Purchasereturn />} />
           </Route>
         </Routes>
       </Router>

@@ -37,7 +37,11 @@ export const navigationConfig = [
     icon: "bi bi-receipt",
     submenu: [
       { title: "Voucher", path: "/voucher" },
+      { title: "Stock Purchase", path: "/stockpurchase" },
       { title: "Stock Distribution", path: "/stockdistribution" },
+      { title: "Stock Sales", path: "/stocksales" },
+      { title: "Purchase Return", path: "/purchasereturn" },
+      { title: "Sales Return", path: "/salesreturn" },
     ],
   },
   {
