@@ -714,33 +714,33 @@ function LedgerForm() {
       ) : (
 
         showTable && (
-       <div
-  className="bg-white rounded shadow mx-auto"
-  style={{ maxWidth: "1000px", padding: "10px" }}
->
-  <div
-    className="text-white rounded p-2 text-center"
-    style={{ backgroundColor: "#365b80" }}
-  >
-    <h5 className="mb-0 fw-semibold text-center">Ledger List</h5>
-  </div>
+          <div
+            className="bg-white rounded shadow mx-auto"
+            style={{ maxWidth: "1000px", padding: "10px" }}
+          >
+            <div
+              className="text-white rounded p-2 text-center"
+              style={{ backgroundColor: "#365b80" }}
+            >
+              <h5 className="mb-0 fw-semibold text-center">Ledger List</h5>
+            </div>
 
-  <div className="mt-2">
-    <CommonTable
-      columns={columns}
-      data={filteredLedgers}
-      onEdit={(index) => handleEdit(filteredLedgers[index])}
-      onDelete={(index) => handleDelete(filteredLedgers[index])}
-      searchValue={searchTerm}
-      onSearchChange={setSearchTerm}
-      onClose={() => {
-        setShowTable(false);
-        handleClear();
-        setSearchTerm("");
-      }}
-    />
-  </div>
-</div>
+            <div className="mt-2">
+              <CommonTable
+                columns={columns}
+                data={filteredLedgers}
+                onEdit={(index) => handleEdit(filteredLedgers[index])}
+                onDelete={(index) => handleDelete(filteredLedgers[index])}
+                searchValue={searchTerm}
+                onSearchChange={setSearchTerm}
+                onClose={() => {
+                  setShowTable(false);
+                  handleClear();
+                  setSearchTerm("");
+                }}
+              />
+            </div>
+          </div>
         )
       )}
     </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import CommonTable from "../../../components/navigation/CommonTable";
 import {
   getGSTSlabs,
   addGSTSlab,
@@ -33,6 +34,34 @@ function GstSlab() {
   const [gstList, setGstList] = useState([]);
   const [ledgerList, setLedgerList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const columns = [
+    {
+      header: "Sr. No",
+      render: (_, __, index) => index + 1,
+    },
+    {
+      header: "Tax Code",
+      accessor: "Tax_code",
+    },
+    {
+      header: "Heading",
+      accessor: "Heading",
+    },
+    {
+      header: "CGST %",
+      render: (row) => `${row.CGST_per}%`,
+    },
+    {
+      header: "SGST %",
+      render: (row) => `${row.SGST_per}%`,
+    },
+    {
+      header: "IGST %",
+      render: (row) => `${row.IGST_per}%`,
+    },
+  ];
+
 
   const filteredList = gstList.filter((item) => {
     const search = searchTerm.toLowerCase();
@@ -444,95 +473,29 @@ function GstSlab() {
         {/* ================= TABLE ================= */}
         {showTable && (
           <div
-            className="table-responsive mt-2"
-            style={{ maxHeight: "90vh", overflowY: "auto", overflowX: "auto" }}
+            className="bg-white rounded shadow mx-auto"
+            style={{ maxWidth: "800px", padding: "10px" }}
           >
-            {/* TOP BAR  */}
-            <div className="d-flex align-items-center justify-content-between mb-2 gap-2">
-              <button
-                className="btn btn-sm btn-secondary"
-                onClick={() => setShowTable(false)}
-              >
-                Close
-              </button>
-
-              <div className="d-flex align-items-center gap-2">
-                <i className="bi bi-search"></i>
-                <label className="fw-semibold text-secondary small mb-0">
-                  Search
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  style={{
-                    width: "250px",
-                    height: "25px",
-                    marginRight: "200PX",
-                  }}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search Tax Code / Heading"
-                />
-              </div>
+            {/* Header */}
+            <div
+              className="text-white rounded p-2 text-center"
+              style={{ backgroundColor: "#365b80" }}
+            >
+              <h5 className="mb-0 fw-semibold">GST Slab </h5>
             </div>
 
-            {/* TABLe */}
-            <table
-              className="table table-bordered text-center table-sm table-striped"
-              style={{
-                whiteSpace: "nowrap",
-                width: "600px",
+            <CommonTable
+              columns={columns}
+              data={filteredList}
+              onEdit={(index) => handleEdit(filteredList[index], index)}
+              onDelete={(index) => handleDelete(filteredList[index].Id)}
+              searchValue={searchTerm}
+              onSearchChange={setSearchTerm}
+              onClose={() => {
+                setShowTable(false);
+                setSearchTerm("");
               }}
-            >
-              <thead
-                className="table-light"
-                style={{ fontSize: "13px", fontWeight: "semibold" }}
-              >
-                <tr>
-                  <th className="table-column-bg-heading">Actions</th>
-                  <th className="table-column-bg-heading">Sr. No</th>
-                  <th className="table-column-bg-heading">Tax Code</th>
-                  <th className="table-column-bg-heading">Heading</th>
-                  <th className="table-column-bg-heading">CGST %</th>
-                  <th className="table-column-bg-heading">SGST %</th>
-                  <th className="table-column-bg-heading">IGST %</th>
-                  {/* <th className="table-column-bg-heading">CGST Account</th>
-                                    <th className="table-column-bg-heading">SGST Account</th>
-                                    <th className="table-column-bg-heading">IGST Account</th> */}
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredList.map((item, index) => (
-                  <tr key={item.Id}>
-                    <td>
-                      <button
-                        className="btn btn-info btn-sm me-1"
-                        onClick={() => handleEdit(item, index)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(item.Id)}
-                      >
-                        Delete
-                      </button>
-                    </td>
-
-                    <td>{index + 1}</td>
-                    <td>{item.Tax_code}</td>
-                    <td>{item.Heading}</td>
-                    <td>{item.CGST_per}%</td>
-                    <td>{item.SGST_per}%</td>
-                    <td>{item.IGST_per}%</td>
-                    {/* <td>{item.cgst_name}</td>
-                                        <td>{item.sgst_name}</td>
-                                        <td>{item.igst_name}</td> */}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            />
           </div>
         )}
       </div>

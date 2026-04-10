@@ -15,6 +15,21 @@ function Unit() {
   const [showTable, setShowTable] = useState(false);
   const [searchText, setSearchText] = useState("");
 
+  const columns = [
+    {
+      header: "Sr. No",
+      render: (_, __, index) => index + 1,
+    },
+    {
+      header: "Unit Name",
+      accessor: "Unit_name",
+    },
+    {
+      header: "Multiple Factor",
+      accessor: "multiple_factor",
+    },
+  ];
+
   useEffect(() => {
     fetchUnits();
   }, []);
@@ -96,13 +111,11 @@ function Unit() {
   };
 
   const filteredUnits = units.filter((u) => {
-    debugger;
     const term = searchTerm.trim().toLowerCase();
-
     if (!term) return true;
+
     return u.Unit_name.toLowerCase().includes(term);
   });
-
   return (
     <div className="bg-white">
       {!showTable ? (
@@ -180,104 +193,33 @@ function Unit() {
             </div>
           </form>
         </div>
-      ) : (
+      ) :
         <div
-          className="bg-white p-3 rounded mx-auto shadow"
-          style={{ maxWidth: "700px" }}
+          className="bg-white rounded shadow mx-auto"
+          style={{ maxWidth: "800px", padding: "10px" }}
         >
           {/* Header */}
           <div
             className="text-white rounded p-2 text-center"
             style={{ backgroundColor: "#365b80" }}
           >
-            <h5 className="mb-0 fw-semibold">Unit Master</h5>
+            <h5 className="mb-0 fw-semibold">Unit</h5>
           </div>
-          <div className="d-flex align-items-center justify-content-between mb-2 gap-2 mt-2">
-            <button
-              className="btn btn-secondary btn-sm"
-              onClick={() => {
-                setShowTable(false);
-                handleClear();
-                setSearchTerm("");
-              }}
-            >
-              Close
-            </button>
-            {/* Ledger Name Search */}
-            <div className="d-flex align-items-center gap-2">
-              <i className="bi bi-search"></i>
-              <label className="fw-semibold text-secondary small mb-0">
-                Search
-              </label>
-              <input
-                type="text"
-                className="form-control "
-                style={{
-                  width: "420px",
-                  marginRight: "400px",
-                  height: "25px",
-                }}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search all columns..."
-              />
-            </div>
-          </div>
-
-          <div
-            className="table-responsive"
-            style={{ maxHeight: "60vh", overflowY: "auto" }}
-          >
-            <table
-              className="table table-bordered text-center table-sm table-striped"
-              style={{
-                whiteSpace: "nowrap",
-                width: "max-content",
-                minWidth: "100%",
-              }}
-            >
-              <thead
-                className="table-light"
-                style={{ fontSize: "13px", fontWeight: "semibold" }}
-              >
-                <tr>
-                  <th className="table-column-bg-heading">Actions</th>
-                  <th className="table-column-bg-heading">Unit Name</th>
-                  <th className="table-column-bg-heading">Multiple Factor</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUnits.length === 0 ? (
-                  <tr>
-                    <td colSpan="3">No records found</td>
-                  </tr>
-                ) : (
-                  filteredUnits.map((unit, index) => (
-                    <tr key={unit.Unit_id}>
-                      <td>
-                        <button
-                          className="btn btn-info btn-sm me-1"
-                          onClick={() => handleEdit(index)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(index)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                      <td className="text-start">{unit.Unit_name}</td>
-                      <td>{unit.multiple_factor}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          <CommonTable
+            columns={columns}
+            data={filteredUnits}
+            onEdit={(index) => handleEdit(units.indexOf(filteredUnits[index]))}
+            onDelete={(index) => handleDelete(units.indexOf(filteredUnits[index]))}
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
+            onClose={() => {
+              setShowTable(false);
+              handleClear();
+              setSearchTerm("");
+            }}
+          />
         </div>
-      )}
+      }
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CommonTable from "../../../components/navigation/CommonTable";
 import {
   createStockDetail,
   deleteStockDetail,
@@ -45,6 +46,69 @@ function StockDetails() {
   const [search, setSearch] = useState("");
   const loginDate = localStorage.getItem("loginDate");
   const username = localStorage.getItem("username");
+
+  const columns = [
+    {
+      header: "Sr. No",
+      render: (_, __, index) => index + 1,
+    },
+    {
+      header: "Barcode",
+      accessor: "Barcode",
+    },
+    {
+      header: "Stock No",
+      accessor: "Stock_no",
+    },
+    {
+      header: "Stock Name",
+      accessor: "Stock_name",
+    },
+    {
+      header: "HSN",
+      accessor: "HSN_no",
+    },
+    {
+      header: "Stock Group",
+      accessor: "Group_name",
+    },
+    {
+      header: "Sub Group",
+      accessor: "Subgroup_name",
+    },
+    {
+      header: "Weight",
+      render: (row) => `${row.Weight} - ${row.Unit_name}`,
+    },
+    {
+      header: "Is Offer",
+      render: (row) => (row.Is_offer == "1" ? "Yes" : "No"),
+    },
+    {
+      header: "MRP",
+      accessor: "MRP",
+    },
+    {
+      header: "Discount",
+      accessor: "Discount",
+    },
+    {
+      header: "Sale Amount",
+      accessor: "Rate",
+    },
+    {
+      header: "Include GST",
+      render: (row) => (row.Include_GST == "1" ? "Yes" : "No"),
+    },
+    {
+      header: "Sale GST",
+      accessor: "Heading",
+    },
+    {
+      header: "Purchase GST",
+      accessor: "Pur_Heading",
+    },
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -658,140 +722,32 @@ function StockDetails() {
             </div>
           </form>
         </div>
-      ) : (
-        <div
-          className="bg-white p-3 rounded mx-auto shadow"
-          style={{ maxWidth: "1000px" }}
-        >
-          {/* Header */}
-          <div
-            className="text-white rounded p-2 text-center"
-            style={{ backgroundColor: "#365b80" }}
+      ) : 
+       <div
+            className="bg-white rounded shadow mx-auto"
+            style={{ maxWidth: "800px", padding: "10px" }}
           >
-            <h5 className="mb-0 fw-semibold">Stock Details</h5>
-          </div>
-          <div className="d-flex justify-content-between align-items-center mb-2 mt-2">
-            {/* Close Button */}
-            <button
-              className="btn btn-sm btn-secondary"
-              onClick={() => {
-                setShowTable(false);
-                handleClear();
-              }}
+            {/* Header */}
+            <div
+              className="text-white rounded p-2 text-center"
+              style={{ backgroundColor: "#365b80" }}
             >
-              Close
-            </button>
-
-            {/* Search Box */}
-            <div className="d-flex align-items-center gap-2">
-              <i className="bi bi-search"></i>
-              <label className="fw-semibold text-secondary small mb-0">
-                Search{" "}
-              </label>
-              <input
-                type="text"
-                className="form-control "
-                style={{
-                  width: "280px",
-                  height: "25px",
-                  marginRight: "500px",
-                }}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+              <h5 className="mb-0 fw-semibold">Stock Details </h5>
             </div>
-          </div>
-
-          <div
-            className="table-responsive mt-2"
-            style={{
-              maxHeight: "60vh",
-              overflowY: "auto",
-              overflowX: "auto",
-            }}
-          >
-            <table
-              className="table table-bordered text-center table-sm table-striped"
-              style={{
-                whiteSpace: "nowrap",
-                width: "max-content",
-                minWidth: "100%",
-              }}
-            >
-              <thead
-                className="table-light"
-                style={{
-                  fontSize: "13px",
-                  fontWeight: "semibold",
-                }}
-              >
-                <tr style={{ fontSize: "14px" }}>
-                  <th className="table-column-bg-heading">Actions</th>
-                  <th className="table-column-bg-heading">Sr. No.</th>
-                  <th className="table-column-bg-heading">Barcode</th>
-                  <th className="table-column-bg-heading">Stock No</th>
-                  <th className="table-column-bg-heading">Stock Name</th>
-                  <th className="table-column-bg-heading">HSN</th>
-                  <th className="table-column-bg-heading">Stock Group</th>
-                  <th className="table-column-bg-heading">Sub Group</th>
-                  <th className="table-column-bg-heading">Weight</th>
-                  <th className="table-column-bg-heading">Is Offer</th>
-                  <th className="table-column-bg-heading">MRP</th>
-                  <th className="table-column-bg-heading">Discount</th>
-                  <th className="table-column-bg-heading">Sale Amount</th>
-                  <th className="table-column-bg-heading">Include GST</th>
-                  <th className="table-column-bg-heading">Sale GST</th>
-                  <th className="table-column-bg-heading">Purchase GST</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredStocks.length === 0 ? (
-                  <tr>
-                    <td colSpan="16">No Data Found</td>
-                  </tr>
-                ) : (
-                  filteredStocks.map((s, i) => (
-                    <tr key={s.Stock_id} style={{ fontSize: "14px" }}>
-                      <td>
-                        <button
-                          className="btn btn-info btn-sm me-1"
-                          onClick={() => handleEdit(s)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(s.Stock_id)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                      <td>{i + 1}</td>
-                      <td>{s.Barcode}</td>
-                      <td>{s.Stock_no}</td>
-                      <td>{s.Stock_name}</td>
-                      <td>{s.HSN_no}</td>
-                      <td>{s.Group_name}</td>
-                      <td>{s.Subgroup_name}</td>
-                      <td>
-                        {s.Weight} - {s.Unit_name}
-                      </td>
-                      <td>{s.Is_offer == "1" ? "Yes" : "No"}</td>
-                      <td>{s.MRP}</td>
-                      <td>{s.Discount}</td>
-                      <td>{s.Rate}</td>
-                      <td>{s.Include_GST == "1" ? "Yes" : "No"}</td>
-                      <td>{s.Heading}</td>
-                      <td>{s.Pur_Heading}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <CommonTable
+        columns={columns}
+        data={filteredStocks}
+        onEdit={(index) => handleEdit(filteredStocks[index])}
+        onDelete={(index) => handleDelete(filteredStocks[index].Stock_id)}
+        searchValue={search}
+        onSearchChange={setSearch}
+        onClose={() => {
+          setShowTable(false);
+          handleClear();
+        }}
+      />
+      </div>
+      }
     </div>
   );
 }

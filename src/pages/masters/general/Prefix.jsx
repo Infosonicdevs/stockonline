@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import CommonTable from "../../../components/navigation/CommonTable";
 import {
   createPrefix,
   deletePrefix,
@@ -17,7 +18,32 @@ const Prefix = () => {
   const [showTable, setShowTable] = useState(false);
   const [prefixes, setPrefixes] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const username = localStorage.getItem("username");
+
+  const columns = [
+    {
+      header: "Sr. No",
+      render: (_, __, index) => index + 1,
+    },
+    {
+      header: "Prefix",
+      accessor: "Prefix",
+    },
+    {
+      header: "Prefix (Regional)",
+      accessor: "Prefix_RL",
+    },
+  ];
+
+  const filteredList = prefixes.filter((item) => {
+    const search = searchTerm.toLowerCase();
+
+    return (
+      item.Prefix?.toLowerCase().includes(search) ||
+      item.Prefix_RL?.toLowerCase().includes(search)
+    );
+  });
 
   useEffect(() => {
     fetchPrefixes();
@@ -205,6 +231,7 @@ const Prefix = () => {
                   className="button-list"
                   onClick={() => {
                     setShowTable(true);
+                    fetchPrefixes();
                   }}
                   style={{ fontSize: "14px" }}
                 >
@@ -212,90 +239,36 @@ const Prefix = () => {
                 </button>
               </div>
             </form>
-          ) : (
-            <div className="mt-2">
-              <div className="text-left mb-3">
-                <button
-                  className="btn btn-sm btn-secondary"
-                  onClick={() => {
-                    setShowTable(false);
-                    setEditIndex(null)
-                    handleClear();
-                  }}
-                >
-                  Close
-                </button>
-              </div>
+          ) :
+            <div
+              className="bg-white rounded shadow mx-auto"
+              style={{ maxWidth: "800px", padding: "10px" }}
+            >
+              {/* Header */}
               <div
-                className="table-responsive mt-2"
-                style={{
-                  maxHeight: "60vh",
-                  overflowY: "auto",
-                  overflowX: "auto",
-                }}
+                className="text-white rounded p-2 text-center"
+                style={{ backgroundColor: "#365b80" }}
               >
-                <table
-                  className="table table-bordered text-center table-sm table-striped"
-                  style={{
-                    whiteSpace: "nowrap",
-                    width: "max-content",
-                    minWidth: "100%",
-                  }}
-                >
-                  <thead
-                    className="table-light"
-                    style={{
-                      fontSize: "13px",
-                      fontWeight: "semibold",
-                    }}
-                  >
-                    <tr>
-                      <th className="table-column-bg-heading">Actions</th>
-                      <th className="table-column-bg-heading">Sr. No</th>
-                      <th className="table-column-bg-heading">Prefix</th>
-                      <th className="table-column-bg-heading">
-                        Prefix (Regional)
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {prefixes.length === 0 ? (
-                      <tr className="text-center">
-                        <td colSpan="4">No records found</td>
-                      </tr>
-                    ) : (
-                      prefixes.map((p, i) => (
-                        <tr key={p.Prefix_id}>
-                          <td>
-                            <button
-                              className="btn btn-info btn-sm me-1"
-                              onClick={() => {
-                                setShowTable(false);
-                                handleEdit(p);
-                              }}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="btn btn-danger btn-sm"
-                              onClick={() => {
-                                handleDelete(p);
-                              }}
-                            >
-                              Delete
-                            </button>
-                          </td>
-                          <td>{i + 1}</td>
-                          <td>{p.Prefix}</td>
-                          <td>{p.Prefix_RL}</td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                <h5 className="mb-0 fw-semibold">Prefix </h5>
               </div>
+              <CommonTable
+                columns={columns}
+                data={filteredList}
+                onEdit={(index) => {
+                  setShowTable(false);
+                  handleEdit(filteredList[index]);
+                }}
+                onDelete={(index) => handleDelete(filteredList[index])}
+                searchValue={searchTerm}
+                onSearchChange={setSearchTerm}
+                onClose={() => {
+                  setShowTable(false);
+                  setSearchTerm("");
+                  handleClear();
+                }}
+              />
             </div>
-          )}
+          }
         </div>
       </div>
     </>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { validateRequiredFields } from "../../../utils/validator";
+import CommonTable from "../../../components/navigation/CommonTable";
 import {
   getStockSubGroups,
   createStockSubGroup,
@@ -21,8 +22,23 @@ function StockSubGroup() {
   const [editIndex, setEditIndex] = useState(null);
   const [showTable, setShowTable] = useState(false);
   const [search, setSearch] = useState("");
-
   const username = localStorage.getItem("username") || "TRT";
+
+  const columns = [
+    {
+      header: "Sr.No.",
+      render: (_, __, index) => index + 1,
+    },
+    {
+      header: "Stock Group",
+      render: (row) =>
+        groups.find((g) => g.Group_id === row.Group_id)?.Group_name,
+    },
+    {
+      header: "Sub Group",
+      accessor: "Subgroup_name",
+    },
+  ];
 
   // ================= LOAD =================
   const loadData = async () => {
@@ -215,110 +231,32 @@ function StockSubGroup() {
             </div>
           </form>
         </div>
-      ) : (
-        /* ================= TABLE ================= */
+      ) : showTable && (
         <div
-          className="bg-white p-3 rounded mx-auto shadow"
-          style={{ maxWidth: "600px" }}
+          className="bg-white rounded shadow mx-auto"
+          style={{ maxWidth: "700px", padding: "10px" }}
         >
-          {/* HEADER */}
+          {/* Header */}
           <div
             className="text-white rounded p-2 text-center"
             style={{ backgroundColor: "#365b80" }}
           >
-            <h5 className="mb-0 fw-semibold">Stock Sub Group</h5>
+            <h5 className="mb-0 fw-semibold">Stock Sub Group </h5>
           </div>
 
-          {/* TOP BAR */}
-          <div className="d-flex justify-content-between align-items-center mb-2 mt-2">
-            <button
-              className="btn btn-sm btn-secondary"
-              onClick={() => setShowTable(false)}
-            >
-              Close
-            </button>
-
-            <div className="d-flex align-items-center gap-2">
-              <i className="bi bi-search"></i>
-
-              <label className="fw-semibold text-secondary small mb-0">
-                Search{" "}
-              </label>
-
-              <input
-                type="text"
-                className="form-control"
-                style={{
-                  width: "250px",
-                  height: "25px",
-                  marginRight: "180px",
-                }}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* TABLE */}
-          <div className="table-responsive" style={{ maxHeight: "60vh" }}>
-            <table className="table table-bordered table-sm table-striped text-center">
-              <thead>
-                <tr>
-                  <th
-                    className="table-column-bg-heading"
-                    style={{ width: "130px" }}
-                  >
-                    Actions
-                  </th>
-
-                  <th className="table-column-bg-heading">Sr.No.</th>
-
-                  <th className="table-column-bg-heading">Stock Group</th>
-
-                  <th className="table-column-bg-heading">Sub Group</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filtered.length === 0 ? (
-                  <tr>
-                    <td colSpan="4">No Records</td>
-                  </tr>
-                ) : (
-                  filtered.map((item, i) => (
-                    <tr key={item.Subgroup_id}>
-                      <td>
-                        <button
-                          className="btn btn-info btn-sm me-1"
-                          onClick={() => handleEdit(item)}
-                        >
-                          Edit
-                        </button>
-
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(item)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-
-                      <td>{i + 1}</td>
-
-                      <td>
-                        {
-                          groups.find((g) => g.Group_id === item.Group_id)
-                            ?.Group_name
-                        }
-                      </td>
-
-                      <td>{item.Subgroup_name}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          <CommonTable
+            columns={columns}
+            data={filtered}
+            onEdit={(index) => handleEdit(filtered[index])}
+            onDelete={(index) => handleDelete(filtered[index])}
+            searchValue={search}
+            onSearchChange={setSearch}
+            onClose={() => {
+              setShowTable(false);
+              handleClear();
+              setSearch("");
+            }}
+          />
         </div>
       )}
     </div>

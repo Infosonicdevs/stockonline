@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { getRoles, saveRole, updateRole, deleteRole } from "../../../services/masters/role";
+import CommonTable from "../../../components/navigation/CommonTable";
 
 function Rolemaster() {
   const username = localStorage.getItem("username") || "Unknown";
@@ -15,6 +16,15 @@ function Rolemaster() {
   const [roles, setRoles] = useState([]);
   const [showTable, setShowTable] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
+
+   const columns = [
+    { Header: "Sr. No", accessor: "sr" },
+    { Header: "Tax Code", accessor: "Tax_code" },
+    { Header: "Heading", accessor: "Heading" },
+    { Header: "CGST %", accessor: "cgstDisplay" },
+    { Header: "SGST %", accessor: "sgstDisplay" },
+    { Header: "IGST %", accessor: "igstDisplay" },
+  ];
 
   // searchbar
   const filteredRoles = roles.filter((r) =>
@@ -163,95 +173,30 @@ function Rolemaster() {
             </div>
           </form>
         ) : (
-          <div
-            className="table-responsive mt-2"
-            style={{ maxHeight: "60vh", overflowY: "auto", overflowX: "auto" }}
+
+              <div
+            className="bg-white rounded shadow mx-auto"
+            style={{ maxWidth: "800px", padding: "10px" }}
           >
-            <div className="text-left mb-2">
-              <div className="d-flex align-items-center justify-content-between mb-2">
-                {/* Search box */}
-                <div className="d-flex align-items-center gap-2">
-                  {/* Close button */}
-                  <button
-                    className="btn btn-sm btn-secondary"
-                    onClick={() => {
-                      setShowTable(false);
-                      handleClear();
-                      setSearchRoleName("");
-                    }}
-                  >
-                    Close
-                  </button>
-                  <i className="bi bi-search"></i>
-                  <input
-                    type="text"
-                    className="form-control "
-                    style={{
-                      width: "180px",
-                      height: "25px",
-                      marginRight: "2px",
-                    }}
-                    value={searchRoleName}
-                    onChange={(e) => setSearchRoleName(e.target.value)}
-                    placeholder="Type role name "
-                  />
-                </div>
-              </div>
-            </div>
-            <table
-              className="table table-bordered text-center table-sm table-striped"
-              style={{
-                whiteSpace: "nowrap",
-                width: "max-content",
-                minWidth: "100%",
-              }}
+            {/* Header */}
+            <div
+              className="text-white rounded p-2 text-center"
+              style={{ backgroundColor: "#365b80" }}
             >
-              <thead
-                className="table-light"
-                style={{
-                  fontSize: "13px",
-                  fontWeight: "semibold",
-                }}
-              >
-                <tr>
-                  <th className="table-column-bg-heading">Actions</th>
-                  <th className="table-column-bg-heading">Sr. No</th>
-                  <th className="table-column-bg-heading">Role Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                {roles.length === 0 ? (
-                  <tr>
-                    <td colSpan="3">No records found</td>
-                  </tr>
-                ) : filteredRoles.length === 0 ? (
-                  <tr>
-                    <td colSpan="3">No records found</td>
-                  </tr>
-                ) : (
-                  filteredRoles.map((r, i) => (
-                    <tr key={r.Role_id}>
-                      <td>
-                        <button
-                          className="btn btn-info btn-sm me-1"
-                          onClick={() => handleEdit(r)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(r)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                      <td>{i + 1}</td>
-                      <td className="text-start">{r.Role}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+              <h5 className="mb-0 fw-semibold">Role Master </h5>
+            </div>
+          <CommonTable
+            columns={columns}
+            data={tableData}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
+            onClose={() => {
+              setShowTable(false);
+              setSearchTerm("");
+            }}
+          />
           </div>
         )}
       </div>
