@@ -12,7 +12,7 @@ import {
   updateStockDistribution,
   getStockDistributionList,
   getStockDistList,
-} from "../../api/stockdistribution";
+} from "../../../services/masters/stock/stockdistribution";
 
 const StockDistribution = () => {
   const [formData, setFormData] = useState({
