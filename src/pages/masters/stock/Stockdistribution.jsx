@@ -64,7 +64,10 @@ const StockDistribution = () => {
       }
       if (outletRes.status === 200) {
         console.log("Outlets Response:", outletRes.data);
-        setOutlets(outletRes.data);
+        const filteredOutlets = (outletRes.data || []).filter(
+          (o) => o.Is_main_branch !== 1
+        );
+        setOutlets(filteredOutlets);
       }
       if (itemsRes.status === 200) {
         console.log("Stock Details Response:", itemsRes.data);

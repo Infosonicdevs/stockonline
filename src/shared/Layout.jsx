@@ -9,11 +9,19 @@ const Layout = () => {
   const username = localStorage.getItem("username");
   const loginDate = localStorage.getItem("loginDate");
   const branch = localStorage.getItem("branch");
+  const roleId = localStorage.getItem("Role_id");
 
   const handleLogout = () => {
     localStorage.clear();
     navigate("/");
   };
+
+  const filteredNavigation = navigationConfig.filter((item) => {
+    if (roleId === "1") {
+      return true;
+    }
+    return !["Master", "Setting", "Utility"].includes(item.title);
+  });
 
   return (
     <div className="d-flex flex-column vh-100">
@@ -58,7 +66,7 @@ const Layout = () => {
           className="d-flex flex-column border-end bg-light"
           style={{ width: "280px" }}
         >
-          <Sidebar config={navigationConfig} />
+          <Sidebar config={filteredNavigation} />
 
           {/* Logout Button at bottom of Sidebar area */}
           <div className="p-3 mt-auto border-top">
