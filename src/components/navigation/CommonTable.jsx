@@ -80,16 +80,26 @@ function CommonTable({
                 <tr key={rowIndex}>
                   {showActions && (
                     <td>
-                      <button
-                        className="btn btn-info btn-sm me-1"
-                        onClick={() => onEdit(rowIndex)}
-                      >
-                        Edit
-                      </button>
+                      {onEdit && (
+                        <button
+                          type="button"
+                          className="btn btn-info btn-sm me-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(rowIndex);
+                          }}
+                        >
+                          Edit
+                        </button>
+                      )}
                       {onDelete && (
                         <button
+                          type="button"
                           className="btn btn-danger btn-sm"
-                          onClick={() => onDelete(rowIndex)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(rowIndex);
+                          }}
                         >
                           Delete
                         </button>

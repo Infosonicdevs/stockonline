@@ -12,6 +12,8 @@ import {
   updateStockDistribution,
   getStockDistributionList,
   getStockDistList,
+  getMainBranchCurrentStock,
+  deleteStockDistribution,
 } from "../../../services/masters/stock/stockdistribution";
 
 const StockDistribution = () => {
@@ -29,6 +31,8 @@ const StockDistribution = () => {
     remainingQty: "0",
     Stock_id: null,
     Pur_amt: 0,
+    id: null,
+    originalQuantity: 0,
   });
 
   const [outlets, setOutlets] = useState([]);
@@ -55,7 +59,8 @@ const StockDistribution = () => {
       const [batchRes, outletRes, itemsRes] = await Promise.all([
         getMaxBatchNo(),
         getOutlets(),
-        getStockDetails(),
+        //getStockDetails(),
+        getMainBranchCurrentStock(),
       ]);
 
       if (batchRes.status === 200) {
@@ -71,7 +76,9 @@ const StockDistribution = () => {
       }
       if (itemsRes.status === 200) {
         console.log("Stock Details Response:", itemsRes.data);
-        setAllItems(itemsRes.data);
+        // Handle different response shapes (Data, data, or direct array)
+        const items = itemsRes.data.Data || itemsRes.data.data || itemsRes.data;
+        setAllItems(Array.isArray(items) ? items : []);
       }
     } catch (error) {
       console.error("Error fetching initial data:", error);
@@ -81,15 +88,32 @@ const StockDistribution = () => {
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
 
+    let newValue = value;
+
+    // ✅ Quantity validation
+    if (id === "quantity") {
+      const stock = (parseFloat(formData.Current_Stock) || 0) + (parseFloat(formData.originalQuantity) || 0);
+      const qty = parseFloat(value) || 0;
+
+      if (qty > stock) {
+        toast.error("Stock is not available!");
+        return; // stop updating
+      }
+    }
+
+    // ✅ Update state
+    setFormData((prev) => ({ ...prev, [id]: newValue }));
+
+    // ✅ Existing itemName search logic (unchanged)
     if (id === "itemName") {
       if (value.length > 0) {
         const lowerValue = value.toLowerCase();
-        const filtered = allItems.filter((item) =>
-          item.Stock_name.toLowerCase().includes(lowerValue) ||
-          item.Barcode?.toString().toLowerCase().includes(lowerValue) ||
-          item.Stock_id?.toString().toLowerCase().includes(lowerValue)
+        const filtered = allItems.filter(
+          (item) =>
+            item.Stock_name.toLowerCase().includes(lowerValue) ||
+            item.Barcode?.toString().toLowerCase().includes(lowerValue) ||
+            item.Stock_id?.toString().toLowerCase().includes(lowerValue)
         );
         setFilteredItems(filtered);
         setShowItemList(true);
@@ -111,6 +135,8 @@ const StockDistribution = () => {
       remainingQty: item.Balance_Qty || "0",
       Stock_id: item.Stock_id,
       Pur_amt: item.Pur_amt || 0,
+      Current_Stock: item.Current_Stock,
+      originalQuantity: 0, // Selection of new item resets original quantity
     }));
     setShowItemList(false);
   };
@@ -119,7 +145,10 @@ const StockDistribution = () => {
     if (!value) return;
     const item = allItems.find((i) => {
       if (field === "itemNo") {
-        return i.Stock_no?.toString() === value.toString() || i.Stock_id?.toString() === value.toString();
+        return (
+          i.Stock_no?.toString() === value.toString() ||
+          i.Stock_id?.toString() === value.toString()
+        );
       }
       if (field === "barcode") {
         return i.Barcode?.toString() === value.toString();
@@ -135,18 +164,29 @@ const StockDistribution = () => {
   };
 
   const addItemToBatch = () => {
-    if (!formData.itemNo || !formData.quantity || parseFloat(formData.quantity) <= 0) {
+    if (
+      !formData.itemNo ||
+      !formData.quantity ||
+      parseFloat(formData.quantity) <= 0
+    ) {
       toast.error("Please select an item and enter a valid quantity");
       return;
     }
 
-    const newItem = {
-      ...formData,
-      id: Date.now(), // Local unique ID for table
-    };
+    setBatchItems((prev) => {
+      if (formData.id) {
+        // Updating existing row in the batch
+        return prev.map((item) => (item.id === formData.id ? { ...formData } : item));
+      } else {
+        // Adding as new row
+        const newItem = {
+          ...formData,
+          id: Date.now(), // Local unique ID for table
+        };
+        return [...prev, newItem];
+      }
+    });
 
-    setBatchItems((prev) => [...prev, newItem]);
-    
     // Clear item fields for next entry (keeping batchNo, outletId, date)
     setFormData((prev) => ({
       ...prev,
@@ -160,6 +200,22 @@ const StockDistribution = () => {
       remainingQty: "0",
       Stock_id: null,
       Pur_amt: 0,
+      Current_Stock: 0,
+      id: null,
+      originalQuantity: 0,
+    }));
+  };
+
+  const handleEditItem = (index) => {
+    const item = batchItems[index];
+    setFormData((prev) => ({
+      ...prev,
+      ...item,
+      // Ensure we keep the batch-level info even when editing a row
+      batchNo: prev.batchNo,
+      outletId: prev.outletId,
+      date: prev.date,
+      originalQuantity: item.isExisting ? item.dbQuantity : 0,
     }));
   };
 
@@ -180,11 +236,13 @@ const StockDistribution = () => {
       remainingQty: "0",
       Stock_id: null,
       Pur_amt: 0,
+      id: null,
+      originalQuantity: 0,
     }));
   };
 
-  const removeItem = (id) => {
-    setBatchItems((prev) => prev.filter((item) => item.id !== id));
+  const removeItem = (index) => {
+    setBatchItems((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSave = async () => {
@@ -214,19 +272,27 @@ const StockDistribution = () => {
 
     try {
       console.log("Saving Distribution Payload:", payload);
-      const res = isEditMode 
+      const res = isEditMode
         ? await updateStockDistribution(payload)
         : await insertStockDistribution(payload);
-      
+
       console.log("Save/Update Response:", res.data);
       if (res.status === 200) {
-        toast.success(isEditMode ? "Stock updated successfully" : "Stock distributed successfully");
+        toast.success(
+          isEditMode
+            ? "Stock updated successfully"
+            : "Stock distributed successfully"
+        );
         setBatchItems([]);
         setIsEditMode(false);
         fetchInitialData(); // Refresh batch no if needed
       }
     } catch (error) {
-      toast.error(isEditMode ? "Failed to update distribution" : "Failed to save distribution");
+      toast.error(
+        isEditMode
+          ? "Failed to update distribution"
+          : "Failed to save distribution"
+      );
     }
   };
 
@@ -268,7 +334,9 @@ const StockDistribution = () => {
           setFormData({
             batchNo: first.Batch_no,
             outletId: first.Outlet_id,
-            date: first.Date ? first.Date.split("T")[0] : new Date().toISOString().split("T")[0],
+            date: first.Date
+              ? first.Date.split("T")[0]
+              : new Date().toISOString().split("T")[0],
             itemNo: "",
             barcode: "",
             itemName: "",
@@ -282,21 +350,26 @@ const StockDistribution = () => {
           });
 
           const itemsForBatch = details.map((item) => {
-            const stockMaster = allItems.find(s => s.Stock_id?.toString() === item.Stock_id?.toString());
+            const stockMaster = allItems.find(
+              (s) => s.Stock_id?.toString() === item.Stock_id?.toString()
+            );
+            const currentQty = item.Quantity || item.quantity || item.Qty || item.qty || 0;
             return {
               id: item.Stock_id + "_" + Date.now() + Math.random(),
-              itemNo: stockMaster?.Stock_no || item.Stock_no,
-              barcode: item.Barcode || stockMaster?.Barcode,
-              itemName: stockMaster?.Stock_name || item.Stock_name,
-              quantity: item.Quantity,
-              mrp: item.MRP,
-              discount: stockMaster?.Discount || 0,
-              rate: item.Rate,
+              itemNo: stockMaster?.Stock_no || item.Stock_no || item.Stock_No || item.item_no || item.itemNo || "",
+              barcode: stockMaster?.Barcode || item.Barcode || item.barcode || "",
+              itemName: stockMaster?.Stock_name || item.Stock_name || item.stock_name || `Item ID: ${item.Stock_id}`,
+              quantity: currentQty,
+              mrp: item.MRP || item.mrp || stockMaster?.MRP || 0,
+              discount: item.Discount || item.discount || stockMaster?.Discount || 0,
+              rate: item.Rate || item.rate || item.Price || item.price || stockMaster?.Rate || 0,
               remainingQty: stockMaster?.Balance_Qty || 0,
-              Stock_id: item.Stock_id,
-              Pur_amt: item.Pur_amt,
-              GS_pur_id: item.GS_pur_id,
-              isExisting: true
+              Stock_id: item.Stock_id || item.stock_id,
+              Pur_amt: item.Pur_amt || item.pur_amt || 0,
+              GS_pur_id: item.GS_pur_id || item.gs_pur_id,
+              isExisting: true,
+              Current_Stock: stockMaster?.Current_Stock || 0,
+              dbQuantity: currentQty,
             };
           });
 
@@ -311,24 +384,33 @@ const StockDistribution = () => {
     }
   };
 
+  const handleDeleteBatch = async (index) => {
+    const batch = allDistributions[index];
+    if (!batch) return;
+
+    if (window.confirm(`Are you sure you want to delete Batch No: ${batch.Batch_no}?`)) {
+      try {
+        const res = await deleteStockDistribution(batch.Batch_no);
+        if (res.status === 200) {
+          toast.success("Batch deleted successfully");
+          fetchDistributions();
+        } else {
+          toast.error("Failed to delete batch");
+        }
+      } catch (error) {
+        console.error("Error deleting batch:", error);
+        toast.error(error.response?.data?.Message || "Error deleting distribution batch");
+      }
+    }
+  };
+
   const columns = [
     { label: "Item No", accessor: "itemNo" },
     { label: "Item Name", accessor: "itemName" },
     { label: "Barcode", accessor: "barcode" },
     { label: "Quantity", accessor: "quantity" },
     { label: "Rate", accessor: "rate" },
-    { label: "MRP", accessor: "mrp" },
-    {
-        label: "Action",
-        render: (val, row) => (
-          <button
-            className="btn btn-sm btn-danger"
-            onClick={() => removeItem(row.id)}
-          >
-            Remove
-          </button>
-        )
-      }
+    { label: "MRP", accessor: "mrp" }
   ];
 
   const listColumns = [
@@ -336,8 +418,9 @@ const StockDistribution = () => {
     {
       label: "Outlet",
       render: (val, row) =>
-        outlets.find((o) => o.Outlet_id.toString() === row.Outlet_id?.toString())
-          ?.Outlet_name || "Unknown",
+        outlets.find(
+          (o) => o.Outlet_id.toString() === row.Outlet_id?.toString()
+        )?.Outlet_name || "Unknown",
     },
     {
       label: "Date",
@@ -350,8 +433,12 @@ const StockDistribution = () => {
       label: "View",
       render: (val, row) => (
         <button
+          type="button"
           className="btn btn-sm btn-primary"
-          onClick={() => handleViewBatch(row.Batch_no)}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleViewBatch(row.Batch_no);
+          }}
         >
           View
         </button>
@@ -362,8 +449,14 @@ const StockDistribution = () => {
   return (
     <div className="container-fluid p-4">
       <ToastContainer />
-      <div className="bg-white p-4 rounded shadow-lg mx-auto" style={{ maxWidth: "1100px" }}>
-        <div className="text-white rounded mb-4 p-3 text-center" style={{ backgroundColor: "#365b80" }}>
+      <div
+        className="bg-white p-4 rounded shadow-lg mx-auto"
+        style={{ maxWidth: "1100px" }}
+      >
+        <div
+          className="text-white rounded mb-4 p-3 text-center"
+          style={{ backgroundColor: "#365b80" }}
+        >
           <h4 className="mb-0 fw-bold">Stock Distribution</h4>
         </div>
 
@@ -411,7 +504,7 @@ const StockDistribution = () => {
 
               <div className="col-12 border-top pt-3 mt-4">
                 <div className="row g-2 align-items-end">
-                  <div className="col-md-2">
+                  <div className="col-md-1">
                     <label className="form-label fw-bold small">Item No</label>
                     <div className="input-group input-group-sm">
                       <input
@@ -425,7 +518,7 @@ const StockDistribution = () => {
                     </div>
                   </div>
 
-                  <div className="col-md-2">
+                  <div className="col-md-1">
                     <label className="form-label fw-bold small">Barcode</label>
                     <input
                       type="text"
@@ -438,7 +531,9 @@ const StockDistribution = () => {
                   </div>
 
                   <div className="col-md-4 position-relative">
-                    <label className="form-label fw-bold small">Item Name</label>
+                    <label className="form-label fw-bold small">
+                      Item Name
+                    </label>
                     <input
                       type="text"
                       id="itemName"
@@ -451,7 +546,11 @@ const StockDistribution = () => {
                     {showItemList && (
                       <div
                         className="position-absolute bg-white shadow w-100 mt-1 rounded overflow-auto"
-                        style={{ maxHeight: "200px", zIndex: 1000, border: "1px solid #ddd" }}
+                        style={{
+                          maxHeight: "200px",
+                          zIndex: 1000,
+                          border: "1px solid #ddd",
+                        }}
                         ref={dropdownRef}
                       >
                         {filteredItems.map((item) => (
@@ -466,6 +565,13 @@ const StockDistribution = () => {
                         ))}
                       </div>
                     )}
+                  </div>
+
+                  <div className="col-md-2">
+                    <label className="form-label small fw-bold ">Stock</label>
+                    <div className="form-control form-control-sm text-center  bg-light ">
+                      {(parseFloat(formData.Current_Stock) || 0) + (parseFloat(formData.originalQuantity) || 0)}
+                    </div>
                   </div>
 
                   <div className="col-md-2">
@@ -499,15 +605,25 @@ const StockDistribution = () => {
                 </div>
                 <div className="text-center px-3 border-end">
                   <div className="small text-muted fw-bold">Discount</div>
-                  <div className="h6 mb-0 text-danger">{formData.discount}%</div>
+                  <div className="h6 mb-0 text-danger">
+                    ₹{formData.discount}
+                  </div>
                 </div>
                 <div className="text-center px-3 border-end">
                   <div className="small text-muted fw-bold">Rate</div>
                   <div className="h6 mb-0 text-success">₹{formData.rate}</div>
                 </div>
-                <div className="text-center px-3">
+                {/* <div className="text-center px-3">
                   <div className="small text-muted fw-bold">Remaining Qty</div>
                   <div className="h6 mb-0 fw-bold">{formData.remainingQty}</div>
+                </div> */}
+                <div className="text-center px-3">
+                  <div className="small text-muted fw-bold">Remaining Qty</div>
+                  <div className="h6 mb-0 fw-bold">
+                    {(parseFloat(formData.Current_Stock) || 0) +
+                      (parseFloat(formData.originalQuantity) || 0) -
+                      (parseFloat(formData.quantity) || 0)}
+                  </div>
                 </div>
               </div>
 
@@ -517,13 +633,20 @@ const StockDistribution = () => {
                   data={batchItems}
                   showSearch={false}
                   showPagination={false}
+                  showActions={true}
+                  onEdit={handleEditItem}
+                  onDelete={removeItem}
                 />
               </div>
 
               <div className="col-12 text-center mt-4 d-flex justify-content-center gap-2">
                 <button
                   type="button"
-                  className={isEditMode ? "btn btn-warning px-4 py-2 fw-bold" : "btn btn-success px-4 py-2 fw-bold"}
+                  className={
+                    isEditMode
+                      ? "btn btn-warning px-4 py-2 fw-bold"
+                      : "btn btn-success px-4 py-2 fw-bold"
+                  }
                   onClick={handleSave}
                 >
                   {isEditMode ? "Update Distribution" : "Save Distribution"}
@@ -545,7 +668,7 @@ const StockDistribution = () => {
                     fetchDistributions();
                   }}
                 >
-                   Show History
+                  Show History
                 </button>
               </div>
             </form>
@@ -553,27 +676,45 @@ const StockDistribution = () => {
         ) : (
           <div className="mt-2">
             <CommonTable
-               columns={listColumns}
-               data={allDistributions}
-               onClose={() => setShowTable(false)}
-               searchValue={searchTerm}
-               onSearchChange={setSearchTerm}
-               onEdit={handleEditBatch}
+              columns={listColumns}
+              data={allDistributions}
+              onClose={() => setShowTable(false)}
+              searchValue={searchTerm}
+              onSearchChange={setSearchTerm}
+              onEdit={handleEditBatch}
+              onDelete={handleDeleteBatch}
+              showActions={true}
             />
           </div>
         )}
       </div>
 
       {showModal && (
-        <div className="modal fade show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} tabIndex="-1">
+        <div
+          className="modal fade show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          tabIndex="-1"
+        >
           <div className="modal-dialog modal-lg modal-dialog-centered">
             <div className="modal-content shadow-lg border-0">
-              <div className="modal-header text-white" style={{ backgroundColor: "#365b80" }}>
-                <h5 className="modal-title fw-bold">Batch Details - Batch No: {selectedBatchItems[0]?.Batch_no}</h5>
-                <button type="button" className="btn-close btn-close-white" onClick={() => setShowModal(false)}></button>
+              <div
+                className="modal-header text-white"
+                style={{ backgroundColor: "#365b80" }}
+              >
+                <h5 className="modal-title fw-bold">
+                  Batch Details - Batch No: {selectedBatchItems[0]?.Batch_no}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={() => setShowModal(false)}
+                ></button>
               </div>
               <div className="modal-body p-0">
-                <div className="table-responsive" style={{ maxHeight: "400px" }}>
+                <div
+                  className="table-responsive"
+                  style={{ maxHeight: "400px" }}
+                >
                   <table className="table table-hover table-striped mb-0 small">
                     <thead className="table-light sticky-top">
                       <tr>
@@ -588,17 +729,23 @@ const StockDistribution = () => {
                     <tbody>
                       {selectedBatchItems.length > 0 ? (
                         selectedBatchItems.map((item, idx) => {
-                          const stockItem = allItems.find(s => s.Stock_id?.toString() === item.Stock_id?.toString());
-                          const itemName = stockItem?.Stock_name || item.Stock_name || "Unknown Item";
-                          const discount = stockItem?.Discount || 0;
-                          const rate = item.Rate || stockItem?.Rate || 0;
-                          const qty = item.Quantity || item.Qty || 0;
+                          const stockItem = allItems.find(
+                            (s) =>
+                              s.Stock_id?.toString() ===
+                              item.Stock_id?.toString()
+                          );
+                          const itemName = item.Stock_name || item.stock_name || stockItem?.Stock_name || "Unknown Item";
+                          const rate = item.Rate || item.rate || item.Price || item.price || stockItem?.Rate || 0;
+                          const qty = item.Quantity || item.quantity || item.Qty || item.qty || 0;
+                          const mrp = item.MRP || item.mrp || stockItem?.MRP || 0;
+                          const discount = item.Discount || item.discount || stockItem?.Discount || 0;
+                          
                           return (
                             <tr key={idx}>
                               <td>{itemName}</td>
                               <td>{qty}</td>
-                              <td>₹{item.MRP}</td>
-                              <td>{discount}%</td>
+                              <td>₹{mrp}</td>
+                              <td>₹{discount}</td>
                               <td>₹{rate}</td>
                               <td>₹{(qty * rate).toFixed(2)}</td>
                             </tr>
@@ -606,26 +753,43 @@ const StockDistribution = () => {
                         })
                       ) : (
                         <tr>
-                          <td colSpan="6" className="text-center p-3">No items found in this batch</td>
+                          <td colSpan="6" className="text-center p-3">
+                            No items found in this batch
+                          </td>
                         </tr>
                       )}
                     </tbody>
                     <tfoot className="table-light fw-bold sticky-bottom">
-                        <tr>
-                            <td colSpan="5" className="text-end px-3">Total Amount:</td>
-                            <td>₹{selectedBatchItems.reduce((acc, item) => {
-                              const stockItem = allItems.find(s => s.Stock_id?.toString() === item.Stock_id?.toString());
+                      <tr>
+                        <td colSpan="5" className="text-end px-3">
+                          Total Amount:
+                        </td>
+                        <td>
+                          ₹
+                          {selectedBatchItems
+                            .reduce((acc, item) => {
+                              const stockItem = allItems.find(
+                                (s) =>
+                                  s.Stock_id?.toString() ===
+                                  item.Stock_id?.toString()
+                              );
                               const rate = item.Rate || stockItem?.Rate || 0;
                               const qty = item.Quantity || item.Qty || 0;
-                              return acc + (qty * rate);
-                            }, 0).toFixed(2)}</td>
-                        </tr>
+                              return acc + qty * rate;
+                            }, 0)
+                            .toFixed(2)}
+                        </td>
+                      </tr>
                     </tfoot>
                   </table>
                 </div>
               </div>
               <div className="modal-footer bg-light">
-                <button type="button" className="btn btn-secondary btn-sm px-4 fw-bold" onClick={() => setShowModal(false)}>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm px-4 fw-bold"
+                  onClick={() => setShowModal(false)}
+                >
                   Close
                 </button>
               </div>
