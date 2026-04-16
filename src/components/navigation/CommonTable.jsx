@@ -86,7 +86,7 @@ function CommonTable({
                           className="btn btn-info btn-sm me-1"
                           onClick={(e) => {
                             e.stopPropagation();
-                            onEdit(rowIndex);
+                            onEdit(row, rowIndex);
                           }}
                         >
                           Edit
@@ -98,7 +98,7 @@ function CommonTable({
                           className="btn btn-danger btn-sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            onDelete(rowIndex);
+                            onDelete(row, rowIndex);
                           }}
                         >
                           Delete

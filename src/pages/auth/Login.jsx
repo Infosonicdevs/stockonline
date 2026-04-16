@@ -192,9 +192,13 @@ function Login() {
 
         const username = userData.User_name;
         const roleId = userData.Role_id;
+        const empId = userData.Emp_id;
+        const userId = userData.User_id;
 
         localStorage.setItem("username", username);
         localStorage.setItem("Role_id", roleId);
+        localStorage.setItem("Emp_id", empId);
+        localStorage.setItem("User_id", userId);
         localStorage.setItem("Outlet_id", selectedBranch);
         localStorage.setItem("branch", selectedBranchData?.Outlet_name || "");
         localStorage.setItem("Year_Id", selectedYear.toString());
