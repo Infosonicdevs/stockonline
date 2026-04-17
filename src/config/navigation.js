@@ -92,4 +92,9 @@ export const navigationConfig = [
     icon: "bi bi-upc-scan",
     path: "/barcode",
   },
+  {
+    title: "Counter Close",
+    icon: "bi bi-box-arrow-right",
+    path: "/counterclose",
+  },
 ];

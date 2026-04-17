@@ -45,6 +45,7 @@ import Purchasereturn from "./pages/masters/stock/Purchasereturn";
 import Salesreturn from "./pages/masters/stock/Salesreturn";
 import BarcodeGenerator from "./pages/utility/Barcode";
 import Ratechange from "./pages/masters/stock/Ratechange";
+import CounterClose from "./pages/masters/general/CounterClose";
 
 function App() {
   return (
@@ -96,6 +97,7 @@ function App() {
             <Route path="/purchasereturn" element={<Purchasereturn />} />
             <Route path="/barcode" element={<BarcodeGenerator />} />
             <Route path="/ratechange" element={<Ratechange />} />
+            <Route path="/counterclose" element={<CounterClose />} />
           </Route>
         </Routes>
       </Router>

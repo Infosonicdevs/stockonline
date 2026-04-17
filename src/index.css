@@ -247,3 +247,14 @@
   color: white;
   margin-top: 2px;
 }
+
+/* Remove up/down arrows from number fields */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}

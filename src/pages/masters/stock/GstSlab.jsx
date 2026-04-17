@@ -80,6 +80,7 @@ function GstSlab() {
       console.error(err);
     }
   };
+  
   useEffect(() => {
     loadLedgers();
   }, []);

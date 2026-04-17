@@ -67,7 +67,7 @@ function AssignCounter() {
     },
     {
       label: "Status",
-      render: (val, row) => (row.Status === "1" ? "Open" : "Closed"),
+      render: (val, row) => (row.Is_closed === "1" ? "Counter Closed" : (row.Status === "1" ? "Open" : "Closed")),
     },
   ];
 
@@ -196,8 +196,7 @@ function AssignCounter() {
     }
   };
 
-  const handleEdit = (index) => {
-    const item = filteredList[index];
+  const handleEdit = (item) => {
     setFormData({
       Counter_id: item.Counter_id,
       Emp_id: item.Emp_id,
@@ -214,14 +213,13 @@ function AssignCounter() {
     setShowTable(false);
   };
 
-  const handleDelete = async (index) => {
+  const handleDelete = async (item) => {
     if (!window.confirm("Are you sure you want to delete this record?")) return;
 
-    const item = filteredList[index];
     try {
       const bodyData = {
         Id: item.Id,
-        User_name: localStorage.getItem("username"),
+        User: localStorage.getItem("username"),
       };
       const response = await deleteAssignedCounter(bodyData);
       if (
@@ -231,6 +229,8 @@ function AssignCounter() {
       ) {
         toast.success("Deleted successfully");
         fetchAssignedCounters();
+      } else {
+        toast.error(response.data || "Failed to delete record");
       }
     } catch (error) {
       console.error("Error deleting:", error);
@@ -360,8 +360,8 @@ function AssignCounter() {
             <CommonTable
               columns={columns}
               data={filteredList}
-              onEdit={(index) => handleEdit(index)}
-              onDelete={(index) => handleDelete(index)}
+              onEdit={(item) => handleEdit(item)}
+              onDelete={(item) => handleDelete(item)}
               searchValue={searchName}
               onSearchChange={setSearchName}
               onClose={() => {
