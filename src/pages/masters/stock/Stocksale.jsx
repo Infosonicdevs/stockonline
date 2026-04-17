@@ -34,9 +34,6 @@ const Stocksale = () => {
     // Master Info
     isIGST: false,
     customerName: "",
-    counterNo: "C001", // Mocked
-    employeeName: "John Doe", // Mocked
-    loginTime: new Date().toLocaleTimeString(), // Mocked
 
     // Item Entry
     id: null,
@@ -820,11 +817,7 @@ const Stocksale = () => {
       <div className="card shadow border-0 rounded-4 overflow-hidden mb-4">
         {/* --- Header: Mocked Labels --- */}
         <div className="card-header border-0 text-white p-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: "#1e293b" }}>
-          <div className="d-flex gap-4 small fw-bold">
-            <span><i className="bi bi-shop me-2"></i>Counter: <span className="text-warning">{formData.counterNo}</span></span>
-            <span><i className="bi bi-person-badge me-2"></i>Employee: <span className="text-warning">{formData.employeeName}</span></span>
-            <span><i className="bi bi-clock me-2"></i>Logged In: <span className="text-warning">{formData.loginTime}</span></span>
-          </div>
+          <h5 className="mb-0 fw-bold">Stock Sale</h5>
           <div className="d-flex align-items-center gap-3">
             <button className="btn btn-warning btn-sm fw-bold shadow-sm" onClick={() => {
               if (!showSaleTable) fetchTransactions();
@@ -833,8 +826,13 @@ const Stocksale = () => {
               <i className={`bi ${showSaleTable ? 'bi-plus-circle' : 'bi-list-ul'} me-2`}></i>
               {showSaleTable ? "New Sale Entry" : "Show Sale List"}
             </button>
-            <h5 className="mb-0 fw-bold">Stock Sale</h5>
-          </div>
+ 
+ 
+ 
+ 
+    
+     
+                    </div>
         </div>
 
         <div className="card-body p-4">
