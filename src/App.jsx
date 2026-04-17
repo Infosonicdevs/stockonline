@@ -43,6 +43,8 @@ import Stockpurchase from "./pages/masters/stock/Stockpurchase";
 import Stocksale from "./pages/masters/stock/Stocksale";
 import Purchasereturn from "./pages/masters/stock/Purchasereturn";
 import Salesreturn from "./pages/masters/stock/Salesreturn";
+import BarcodeGenerator from "./pages/utility/Barcode";
+import Ratechange from "./pages/masters/stock/Ratechange";
 
 function App() {
   return (
@@ -92,6 +94,8 @@ function App() {
             <Route path="/assign-counter" element={<AssignCounter />} />
             <Route path="/salesreturn" element={<Salesreturn />} />
             <Route path="/purchasereturn" element={<Purchasereturn />} />
+            <Route path="/barcode" element={<BarcodeGenerator />} />
+            <Route path="/ratechange" element={<Ratechange />} />
           </Route>
         </Routes>
       </Router>

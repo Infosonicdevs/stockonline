@@ -55,6 +55,7 @@ export const navigationConfig = [
       { title: "Bank Account", path: "/bankaccountinfo" },
       { title: "Counter", path: "/counter" },
       { title: "Assign Counter", path: "/assign-counter" },
+      { title: "Rate Change", path: "/ratechange" },
       {
         title: "Ledger",
         icon: "bi bi-journal-text",
@@ -84,7 +85,11 @@ export const navigationConfig = [
       { title: "Role", path: "/role-master" },
       { title: "Prefix", path: "/prefix" },
       { title: "Unit", path: "/unit" },
-
     ],
+  },
+  {
+    title: "Barcode",
+    icon: "bi bi-upc-scan",
+    path: "/barcode",
   },
 ];

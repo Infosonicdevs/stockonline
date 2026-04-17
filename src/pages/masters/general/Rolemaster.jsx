@@ -18,12 +18,8 @@ function Rolemaster() {
   const [editIndex, setEditIndex] = useState(null);
 
    const columns = [
-    { Header: "Sr. No", accessor: "sr" },
-    { Header: "Tax Code", accessor: "Tax_code" },
-    { Header: "Heading", accessor: "Heading" },
-    { Header: "CGST %", accessor: "cgstDisplay" },
-    { Header: "SGST %", accessor: "sgstDisplay" },
-    { Header: "IGST %", accessor: "igstDisplay" },
+    { label: "Sr. No", render: (_, __, index) => index + 1 },
+    { label: "Role Name", accessor: "Role" },
   ];
 
   // searchbar
@@ -187,14 +183,14 @@ function Rolemaster() {
             </div>
           <CommonTable
             columns={columns}
-            data={tableData}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            searchValue={searchTerm}
-            onSearchChange={setSearchTerm}
+            data={filteredRoles}
+            onEdit={(row) => handleEdit(row)}
+            onDelete={(row) => handleDelete(row)}
+            searchValue={searchRoleName}
+            onSearchChange={setSearchRoleName}
             onClose={() => {
               setShowTable(false);
-              setSearchTerm("");
+              setSearchRoleName("");
             }}
           />
           </div>

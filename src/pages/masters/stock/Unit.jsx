@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { getUnits, addUnit, updateUnit, deleteUnit } from "../../../services/masters/unit";
+import CommonTable from "../../../components/navigation/CommonTable";
 
 function Unit() {
   const username = localStorage.getItem("username") || "Unknown"; // dynamic user
@@ -17,15 +18,15 @@ function Unit() {
 
   const columns = [
     {
-      header: "Sr. No",
+      label: "Sr. No",
       render: (_, __, index) => index + 1,
     },
     {
-      header: "Unit Name",
+      label: "Unit Name",
       accessor: "Unit_name",
     },
     {
-      header: "Multiple Factor",
+      label: "Multiple Factor",
       accessor: "multiple_factor",
     },
   ];
@@ -86,24 +87,21 @@ function Unit() {
     }
   };
 
-  const handleEdit = (index) => {
-    const unit = units[index];
+  const handleEdit = (unit) => {
     setFormData({
       unitName: unit.Unit_name,
       multipleFactor: unit.multiple_factor,
       Unit_id: unit.Unit_id,
     });
-    setEditIndex(index);
+    setEditIndex(units.indexOf(unit));
     setShowTable(false);
   };
 
-  const handleDelete = async (index) => {
-    const unit = units[index];
+  const handleDelete = async (unit) => {
     try {
       await deleteUnit({ Unit_id: unit.Unit_id, Modified_by: username });
       toast.success("Unit deleted successfully!");
-      const updatedUnits = [...units];
-      updatedUnits.splice(index, 1);
+      const updatedUnits = units.filter(u => u.Unit_id !== unit.Unit_id);
       setUnits(updatedUnits);
     } catch (err) {
       toast.error(err.response?.data || err.message);
@@ -208,8 +206,8 @@ function Unit() {
           <CommonTable
             columns={columns}
             data={filteredUnits}
-            onEdit={(index) => handleEdit(units.indexOf(filteredUnits[index]))}
-            onDelete={(index) => handleDelete(units.indexOf(filteredUnits[index]))}
+            onEdit={(row) => handleEdit(row)}
+            onDelete={(row) => handleDelete(row)}
             searchValue={searchTerm}
             onSearchChange={setSearchTerm}
             onClose={() => {

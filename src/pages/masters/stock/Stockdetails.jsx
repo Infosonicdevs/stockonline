@@ -49,63 +49,63 @@ function StockDetails() {
 
   const columns = [
     {
-      header: "Sr. No",
+      label: "Sr. No",
       render: (_, __, index) => index + 1,
     },
     {
-      header: "Barcode",
+      label: "Barcode",
       accessor: "Barcode",
     },
     {
-      header: "Stock No",
+      label: "Stock No",
       accessor: "Stock_no",
     },
     {
-      header: "Stock Name",
+      label: "Stock Name",
       accessor: "Stock_name",
     },
     {
-      header: "HSN",
+      label: "HSN",
       accessor: "HSN_no",
     },
     {
-      header: "Stock Group",
+      label: "Stock Group",
       accessor: "Group_name",
     },
     {
-      header: "Sub Group",
+      label: "Sub Group",
       accessor: "Subgroup_name",
     },
     {
-      header: "Weight",
-      render: (row) => `${row.Weight} - ${row.Unit_name}`,
+      label: "Weight",
+      render: (val, row) => `${row.Weight} - ${row.Unit_name}`,
     },
     {
-      header: "Is Offer",
-      render: (row) => (row.Is_offer == "1" ? "Yes" : "No"),
+      label: "Is Offer",
+      render: (val, row) => (row.Is_offer == "1" ? "Yes" : "No"),
     },
     {
-      header: "MRP",
+      label: "MRP",
       accessor: "MRP",
     },
     {
-      header: "Discount",
+      label: "Discount",
       accessor: "Discount",
     },
     {
-      header: "Sale Amount",
+      label: "Sale Amount",
       accessor: "Rate",
     },
     {
-      header: "Include GST",
-      render: (row) => (row.Include_GST == "1" ? "Yes" : "No"),
+      label: "Include GST",
+      render: (val, row) => (row.Include_GST == "1" ? "Yes" : "No"),
     },
     {
-      header: "Sale GST",
+      label: "Sale GST",
       accessor: "Heading",
     },
     {
-      header: "Purchase GST",
+      label: "Purchase GST",
       accessor: "Pur_Heading",
     },
   ];
@@ -737,8 +737,8 @@ function StockDetails() {
       <CommonTable
         columns={columns}
         data={filteredStocks}
-        onEdit={(index) => handleEdit(filteredStocks[index])}
-        onDelete={(index) => handleDelete(filteredStocks[index].Stock_id)}
+        onEdit={(row) => handleEdit(row)}
+        onDelete={(row) => handleDelete(row.Stock_id)}
         searchValue={search}
         onSearchChange={setSearch}
         onClose={() => {

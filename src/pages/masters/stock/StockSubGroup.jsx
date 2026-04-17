@@ -26,16 +26,16 @@ function StockSubGroup() {
 
   const columns = [
     {
-      header: "Sr.No.",
+      label: "Sr.No.",
       render: (_, __, index) => index + 1,
     },
     {
-      header: "Stock Group",
-      render: (row) =>
+      label: "Stock Group",
+      render: (val, row) =>
         groups.find((g) => g.Group_id === row.Group_id)?.Group_name,
     },
     {
-      header: "Sub Group",
+      label: "Sub Group",
       accessor: "Subgroup_name",
     },
   ];
@@ -247,8 +247,8 @@ function StockSubGroup() {
           <CommonTable
             columns={columns}
             data={filtered}
-            onEdit={(index) => handleEdit(filtered[index])}
-            onDelete={(index) => handleDelete(filtered[index])}
+            onEdit={(row) => handleEdit(row)}
+            onDelete={(row) => handleDelete(row)}
             searchValue={search}
             onSearchChange={setSearch}
             onClose={() => {

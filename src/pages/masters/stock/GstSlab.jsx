@@ -37,28 +37,28 @@ function GstSlab() {
 
   const columns = [
     {
-      header: "Sr. No",
+      label: "Sr. No",
       render: (_, __, index) => index + 1,
     },
     {
-      header: "Tax Code",
+      label: "Tax Code",
       accessor: "Tax_code",
     },
     {
-      header: "Heading",
+      label: "Heading",
       accessor: "Heading",
     },
     {
-      header: "CGST %",
-      render: (row) => `${row.CGST_per}%`,
+      label: "CGST %",
+      render: (val, row) => `${row.CGST_per}%`,
     },
     {
-      header: "SGST %",
-      render: (row) => `${row.SGST_per}%`,
+      label: "SGST %",
+      render: (val, row) => `${row.SGST_per}%`,
     },
     {
-      header: "IGST %",
-      render: (row) => `${row.IGST_per}%`,
+      label: "IGST %",
+      render: (val, row) => `${row.IGST_per}%`,
     },
   ];
 
@@ -186,8 +186,8 @@ function GstSlab() {
     }
   };
 
-  const handleEdit = (item, index) => {
-    setEditIndex(index);
+  const handleEdit = (item) => {
+    setEditIndex(item.Id); // or some actual identifier, editIndex was index earlier, it should be something unique to show edit mode but actually editIndex logic might expect an ID or something not null
 
     const cgstLedger = ledgerList.find((l) => l.Ledger_id === item.CGST_l_id);
     const sgstLedger = ledgerList.find((l) => l.Ledger_id === item.SGST_l_id);
@@ -487,8 +487,8 @@ function GstSlab() {
             <CommonTable
               columns={columns}
               data={filteredList}
-              onEdit={(index) => handleEdit(filteredList[index], index)}
-              onDelete={(index) => handleDelete(filteredList[index].Id)}
+              onEdit={(row) => handleEdit(row)}
+              onDelete={(row) => handleDelete(row.Id)}
               searchValue={searchTerm}
               onSearchChange={setSearchTerm}
               onClose={() => {
