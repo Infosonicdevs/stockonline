@@ -105,16 +105,22 @@ function Login() {
         if (loginDate) {
           setDate(loginDate.split("T")[0]); // No toISOString() needed
           const formattedloginDate = loginDate.split("T")[0];
-          console.log(formattedloginDate);
+          console.log("System date from admin:", formattedloginDate);
           localStorage.setItem("loginDate", formattedloginDate);
         }
       }
     } catch (error) {
-      console.error(
-        "Error while getting selected system date by admin:",
-        error,
-      );
-      // Fallback to current date if API fails
+      // If it's a 404, it just means no date has been selected by admin yet
+      if (error.response && error.response.status === 404) {
+        console.warn("No system date selected by admin yet. Using current date as fallback.");
+      } else {
+        console.error(
+          "Error while getting selected system date by admin:",
+          error,
+        );
+      }
+      
+      // Fallback to current date if API fails or no date found
       const fallbackDate = new Date().toISOString().split("T")[0];
       setDate(fallbackDate);
       localStorage.setItem("loginDate", fallbackDate);

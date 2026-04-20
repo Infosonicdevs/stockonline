@@ -17,7 +17,12 @@ const apiClient = axios.create({
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("API Error:", error.response?.data || error.message);
+    const responseData = error.response?.data;
+    if (error.response?.status === 404 && responseData && responseData.success === false) {
+      console.warn("API Data Not Found:", responseData.message || error.message);
+    } else {
+      console.error("API Error:", responseData || error.message);
+    }
     return Promise.reject(error);
   }
 );
