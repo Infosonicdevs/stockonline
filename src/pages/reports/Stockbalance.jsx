@@ -251,8 +251,8 @@ function StockEntry() {
                     <CommonTable
                         columns={columns}
                         data={filteredData}
-                        onEdit={(index) => handleEdit(index)}
-                        onDelete={(index) => handleDelete(index)}
+                        onEdit={(_, index) => handleEdit(index)}
+                        onDelete={(_, index) => handleDelete(index)}
                         searchValue={searchName}
                         onSearchChange={setSearchName}
                         onClose={() => {

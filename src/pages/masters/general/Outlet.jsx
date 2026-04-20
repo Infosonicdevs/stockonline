@@ -629,9 +629,9 @@ function OutletCenterForm() {
     <CommonTable
       columns={columns}
       data={filteredCenters}
-      onEdit={(index) => handleEdit(filteredCenters[index])}
-      onDelete={(index) =>
-        handleDelete(filteredCenters[index].outletId)
+      onEdit={handleEdit}
+      onDelete={(row) =>
+        handleDelete(row.outletId)
       }
       searchValue={searchName}
       onSearchChange={setSearchName}

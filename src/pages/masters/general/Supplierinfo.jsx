@@ -606,8 +606,8 @@ function SupplierInfo() {
 <CommonTable
   columns={columns}
   data={filteredSuppliers}
-  onEdit={(index) => handleEdit(filteredSuppliers[index])}
-  onDelete={(index) => handleDelete(filteredSuppliers[index].Vend_id)}
+  onEdit={handleEdit}
+  onDelete={(row) => handleDelete(row.Vend_id)}
   searchValue={searchSupplier}
   onSearchChange={setSearchSupplier}
   onClose={() => {

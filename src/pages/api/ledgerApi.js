@@ -1,24 +1,22 @@
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_APIURL;
+import apiClient from "../../api/client";
 
 export const getLedgers = () =>
-  axios.get(`${BASE_URL}/api/Ledger`);
+  apiClient.get(`/api/Ledger`);
 
 export const saveLedger = (payload) =>
-  axios.post(`${BASE_URL}/api/Ledger`, payload);
+  apiClient.post(`/api/Ledger`, payload);
 
 export const updateLedger = (payload) =>
-  axios.put(`${BASE_URL}/api/Ledger`, payload);
+  apiClient.put(`/api/Ledger`, payload);
 
 export const deleteLedger = (ledgerId) =>
-  axios.post(`${BASE_URL}/api/DelLedger`, {
+  apiClient.post(`/api/DelLedger`, {
     Ledger_id: ledgerId,
     Modified_by: "TRT"
   });
 
 export const getLedgerGroup = (patrakId, crDrId) =>
-  axios.get(`${BASE_URL}/api/LedgerGroup?patrak=${patrakId}&CrDr=${crDrId}`);
+  apiClient.get(`/api/LedgerGroup?patrak=${patrakId}&CrDr=${crDrId}`);
 
 export const getLedgerSubGroup = (groupId) =>
-  axios.get(`${BASE_URL}/api/LedgerSubGroupByGroup?id=${groupId}`);
+  apiClient.get(`/api/LedgerSubGroupByGroup?id=${groupId}`);

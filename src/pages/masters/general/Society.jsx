@@ -1,4 +1,4 @@
-import apiClient from "../../../api/client";
+import apiClient, { BASE_URL } from "../../../api/client";
 import React, { useEffect, useRef, useState } from "react";
 import {
   getCitiesByTalukaId,
@@ -101,8 +101,7 @@ const Society = () => {
   };
 
   const showLogoImage = (image) => {
-    const apiURL = import.meta.env.VITE_APIURL;
-    const baseUrl = `${apiURL}/Content/Upload/Logo/`;
+    const baseUrl = `${BASE_URL}/Content/Upload/Logo/`;
 
     if (image) {
       // Add a cache-buster query parameter

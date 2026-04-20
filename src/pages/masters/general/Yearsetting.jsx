@@ -424,7 +424,7 @@ function YearSetting() {
     <CommonTable
       columns={columns}
       data={yearList}
-      onEdit={(index) => handleEdit(index)}
+      onEdit={(_, index) => handleEdit(index)}
       onDelete={null} 
       searchValue={""} 
       onSearchChange={() => {}}

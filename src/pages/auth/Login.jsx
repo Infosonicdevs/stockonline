@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  getBranches,
   getCurrentFinancialYear,
   getFinancialYears,
   getLatestSystemDateSelectedByAdmin,
@@ -27,8 +26,6 @@ function Login() {
     password: "",
     date: "",
   });
-  const [branches, setBranches] = useState([]);
-  const [selectedBranch, setSelectedBranch] = useState("");
   const [financialYears, setFinancialYears] = useState([]);
   const [selectedYear, setSelectedYear] = useState("");
   const [loginImageUrl, setLoginImageUrl] = useState(null);
@@ -38,7 +35,6 @@ function Login() {
     const fetchData = async () => {
       try {
         await Promise.all([
-          loadBranches(),
           loadFinancialYears(),
           getAdminSelectedDate(),
           handleGetLogoImage(),
@@ -125,12 +121,7 @@ function Login() {
     }
   };
 
-  const selectedBranchData = branches.find(
-    (branch) => branch.Outlet_id === selectedBranch,
-  );
-
-  const isAdminAndMainBranch =
-    role === "Admin" && selectedBranchData?.Is_main_branch === 1;
+  const isAdminAndMainBranch = role === "Admin";
 
   const checkUserRole = async () => {
     const { username, password } = userloginData;
@@ -169,11 +160,6 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    if (!selectedBranch) {
-      toast.error("Please select a branch");
-      return;
-    }
-
     if (!selectedYear) {
       toast.error("Please select a financial year");
       return;
@@ -194,13 +180,15 @@ function Login() {
         const roleId = userData.Role_id;
         const empId = userData.Emp_id;
         const userId = userData.User_id;
+        const outletId = userData.Outlet_id;
+        const outletName = userData.Outlet_name;
 
         localStorage.setItem("username", username);
         localStorage.setItem("Role_id", roleId);
         localStorage.setItem("Emp_id", empId);
         localStorage.setItem("User_id", userId);
-        localStorage.setItem("Outlet_id", selectedBranch);
-        localStorage.setItem("branch", selectedBranchData?.Outlet_name || "");
+        localStorage.setItem("Outlet_id", outletId);
+        localStorage.setItem("branch", outletName || "");
         localStorage.setItem("Year_Id", selectedYear.toString());
 
         navigate("/dashboard");
@@ -214,20 +202,6 @@ function Login() {
     }
   };
 
-  const loadBranches = async () => {
-    try {
-      const result = await getBranches();
-      console.log(result);
-      if (result.status === 200) {
-        setBranches(result.data.data);
-      } else {
-        toast.error("Branches not found");
-      }
-    } catch (error) {
-      toast.error("loadBranches failed due to server error");
-      console.error(error);
-    }
-  };
 
   const verifySystemUserLogin = async () => {
     try {
@@ -330,27 +304,6 @@ function Login() {
                 Login
               </h4>
 
-              {/* Branch */}
-              <div className="mb-2">
-                <label className="form-label fw-medium small">
-                  Select Branch
-                </label>
-                <select
-                  id="branch"
-                  value={selectedBranch}
-                  onChange={(e) => setSelectedBranch(Number(e.target.value))}
-                  required
-                  className="form-select form-select-sm"
-                  style={{ width: "270px" }}
-                >
-                  <option value="">-- Choose a branch --</option>
-                  {branches.map((branch) => (
-                    <option key={branch.Outlet_id} value={branch.Outlet_id}>
-                      {branch.Outlet_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
 
               {/* Username */}
               <div className="mb-2">

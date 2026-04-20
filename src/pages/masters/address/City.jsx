@@ -391,8 +391,8 @@ function City() {
             <CommonTable
               columns={columns}
               data={filteredCities}
-              onEdit={(index) => handleEdit(filteredCities[index])}
-              onDelete={(index) => handleDelete(filteredCities[index])}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
               searchValue={searchText}
               onSearchChange={setSearchText}
               onClose={() => {

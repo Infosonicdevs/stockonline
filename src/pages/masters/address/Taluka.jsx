@@ -375,8 +375,8 @@ function Taluka() {
         ) : <CommonTable
           columns={columns}
           data={filteredTalukas}
-          onEdit={(index) => handleEdit(filteredTalukas[index])}
-          onDelete={(index) => handleDelete(filteredTalukas[index])}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
           searchValue={searchText}
           onSearchChange={setSearchText}
           onClose={() => {

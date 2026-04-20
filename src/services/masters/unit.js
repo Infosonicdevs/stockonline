@@ -1,8 +1,7 @@
 // src/services/unit.js
 import apiClient from "../../api/client";
 
-const BASEURL = import.meta.env.VITE_APIURL;  // backend base URL
-const APIURL = `${BASEURL}/api`;               // add /api if your backend uses it
+
 
 // Fetch all units
 export const getUnits = () => apiClient.get(`/api/Unit`);

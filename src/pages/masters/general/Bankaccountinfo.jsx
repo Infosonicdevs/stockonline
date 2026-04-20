@@ -380,8 +380,8 @@ function BankAccountForm() {
             <CommonTable
               columns={columns}
               data={filteredList}
-              onEdit={(index) => handleEdit(index)}
-              onDelete={(index) => handleDelete(index)}
+              onEdit={(_, index) => handleEdit(index)}
+              onDelete={(_, index) => handleDelete(index)}
               searchValue={searchName}
               onSearchChange={setSearchName}
               onClose={() => {

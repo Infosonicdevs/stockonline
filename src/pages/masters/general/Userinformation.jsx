@@ -354,8 +354,7 @@ function Userinformation() {
     setSearchTerm(""); // clear search when closing table
   };
 
-  const handleEdit = async (index) => {
-    const user = users[index];
+  const handleEdit = async (user) => {
     try {
       const res = await apiClient.get(`${apiBase}/Employee?E_id=${user.empId}`);
       const data = res.data[0];
@@ -377,7 +376,7 @@ function Userinformation() {
         accountNo: data.Cust_no,
       });
 
-      setEditIndex(index);
+      setEditIndex(user.empId); // Store ID instead of index if needed, but let's check handleSubmit
       setShowTable(false);
     } catch (err) {
       console.error(err);
@@ -385,8 +384,7 @@ function Userinformation() {
     }
   };
 
-  const handleDelete = async (index) => {
-    const user = users[index];
+  const handleDelete = async (user) => {
     try {
       await apiClient.post(`${apiBase}/DelEmployee`, {
         Emp_id: user.empId,

@@ -350,8 +350,8 @@ function LedgerEntry() {
             <CommonTable
               columns={columns}
               data={filteredEntries}
-              onEdit={(index) => handleEdit(filteredEntries[index].Opn_bal_id)}
-              onDelete={(index) => handleDelete(filteredEntries[index].Opn_bal_id)}
+              onEdit={(row) => handleEdit(row.Opn_bal_id)}
+              onDelete={(row) => handleDelete(row.Opn_bal_id)}
               searchValue={searchTerm}
               onSearchChange={setSearchTerm}
               onClose={() => setShowTable(false)}

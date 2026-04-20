@@ -197,8 +197,8 @@ function State() {
         ) : <CommonTable
           columns={columns}
           data={filteredStates}
-          onEdit={(index) => handleEdit(filteredStates[index])}
-          onDelete={(index) => handleDelete(filteredStates[index])}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
           searchValue={searchName}
           onSearchChange={setSearchName}
           onClose={() => {

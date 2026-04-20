@@ -924,8 +924,8 @@ const CustomerInfo = () => {
     <CommonTable
       columns={columns}
       data={filteredCustomers}
-      onEdit={(index) => handleEdit(filteredCustomers[index])}
-      onDelete={(index) => handleDelete(filteredCustomers[index])}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
       onClose={() => setShowTable(false)}
       searchValue={searchTerm}
       onSearchChange={(val) => setSearchTerm(val)}

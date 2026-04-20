@@ -1,15 +1,13 @@
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_APIURL;
+import apiClient from "../../api/client";
 
 export const getCrDr = () =>
-  axios.get(`${BASE_URL}/api/CR_DR`);
+  apiClient.get(`/api/CR_DR`);
 
 export const getPatrak = () =>
-  axios.get(`${BASE_URL}/api/PatrakMaster`);
+  apiClient.get(`/api/PatrakMaster`);
 
 export const getLedgerType = () =>
-  axios.get(`${BASE_URL}/api/LedgerType`);
+  apiClient.get(`/api/LedgerType`);
 
 export const getPersonalLedgerType = () =>
-  axios.get(`${BASE_URL}/api/PersonalLedType`);
+  apiClient.get(`/api/PersonalLedType`);

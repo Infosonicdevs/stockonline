@@ -203,7 +203,7 @@ function LedgerForm() {
   /* ================= LOAD TABLE DATA ================= */
   const loadLedgers = async () => {
     try {
-      debugger;
+
       const res = await apiClient.get(`/api/Ledger`);
 
       // Handle .NET $values structure safely
@@ -295,7 +295,7 @@ function LedgerForm() {
 
   /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
-    debugger;
+
     e.preventDefault();
 
     // Basic required fields
@@ -321,7 +321,7 @@ function LedgerForm() {
     }
 
     try {
-      debugger;
+
       const bodyData = {
         Ledger_id: formData.Ledger_id,
         Ledger_no: formData.Ledger_no,
@@ -385,7 +385,7 @@ function LedgerForm() {
 
   /* ================= EDIT ================= */
   const handleEdit = (data) => {
-    debugger;
+
     setFormData({
       Ledger_id: data.Ledger_id,
       Ledger_no: data.Ledger_no,
@@ -407,7 +407,7 @@ function LedgerForm() {
 
   /* ================= DELETE ================= */
   const handleDelete = async (data) => {
-    debugger;
+
 
     try {
       await apiClient.post(`/api/DelLedger`, {
@@ -729,8 +729,8 @@ function LedgerForm() {
               <CommonTable
                 columns={columns}
                 data={filteredLedgers}
-                onEdit={(index) => handleEdit(filteredLedgers[index])}
-                onDelete={(index) => handleDelete(filteredLedgers[index])}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
                 searchValue={searchTerm}
                 onSearchChange={setSearchTerm}
                 onClose={() => {

@@ -261,8 +261,8 @@ function District() {
         <CommonTable
           columns={columns}
           data={filteredDistricts}
-          onEdit={(index) => handleEdit(filteredDistricts[index])}
-          onDelete={(index) => handleDelete(filteredDistricts[index])}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
           searchValue={searchText}
           onSearchChange={setSearchText}
           onClose={() => {

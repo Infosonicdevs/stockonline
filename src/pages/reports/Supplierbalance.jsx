@@ -379,11 +379,11 @@ function Supplierbalance() {
           <CommonTable
             columns={columns}
             data={filteredSuppliers}
-            onEdit={(index) =>
-              handleEdit(filteredSuppliers[index].Opn_bal_id)
+            onEdit={(row) =>
+              handleEdit(row.Opn_bal_id)
             }
-            onDelete={(index) =>
-              handleDelete(filteredSuppliers[index].Opn_bal_id)
+            onDelete={(row) =>
+              handleDelete(row.Opn_bal_id)
             }
             searchValue={searchName}
             onSearchChange={setSearchName}

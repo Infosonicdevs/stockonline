@@ -386,8 +386,8 @@ function LedgerForm() {
       <CommonTable
         columns={columns}
         data={filteredLedgers}
-        onEdit={(index) => handleEdit(filteredLedgers[index])}
-        onDelete={(index) => handleDelete(filteredLedgers[index])}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
         searchValue={searchName}
         onSearchChange={setSearchName}
         onClose={() => {
