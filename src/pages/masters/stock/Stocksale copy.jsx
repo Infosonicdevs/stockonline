@@ -25,7 +25,7 @@ const numberToWords = (num) => {
     "Eight ",
     "Nine ",
     "Ten ",
-    "Elin login even ",
+    "Eleven ",
     "Twelve ",
     "Thirteen ",
     "Fourteen ",
@@ -270,7 +270,7 @@ const Stocksale = () => {
             const stockInfo =
               stockList.find((s) => s.Stock_id === item.Stock_id) || {};
 
-            const qty = Math.max(0, parseFloat(item.Quantity) || 0);
+            const qty = parseFloat(item.Quantity) || 0;
             const mrp = parseFloat(item.MRP) || stockInfo.MRP || 0;
             const rate =
               parseFloat(item.Rate) || parseFloat(item.Amount) / qty || 0;
@@ -502,16 +502,12 @@ const Stocksale = () => {
       // Validation for quantity
       if (id === "quantity") {
         const qty = parseFloat(val) || 0;
-        if (qty < 0) {
-          updated.quantity = "0";
-        } else {
-          const effectiveStock = Math.max(0, parseFloat(updated.currentStock) || 0);
-          if (qty > effectiveStock) {
-            toast.warning(
-              `Quantity cannot exceed available stock (${effectiveStock})`
-            );
-            updated.quantity = effectiveStock.toString();
-          }
+        const effectiveStock = parseFloat(updated.currentStock) || 0;
+        if (qty > effectiveStock) {
+          toast.warning(
+            `Quantity cannot exceed available stock (${effectiveStock})`
+          );
+          updated.quantity = effectiveStock.toString();
         }
       }
 
@@ -766,14 +762,8 @@ const Stocksale = () => {
   };
 
   const addItem = () => {
-    const qty = parseFloat(formData.quantity) || 0;
     if (!formData.itemName || !formData.quantity || !formData.mrp) {
       toast.error("Please fill Item Name, Quantity and MRP");
-      return;
-    }
-
-    if (qty <= 0) {
-      toast.error("Quantity must be greater than 0");
       return;
     }
 
@@ -1047,301 +1037,509 @@ const Stocksale = () => {
   };
 
   return (
-    <div className="vh-100 d-flex flex-column overflow-hidden bg-light pos-container">
-      {/* --- Page Header --- */}
-      <div className="pos-header d-flex justify-content-between align-items-center px-3 text-white shadow-sm" style={{ backgroundColor: "#1e293b", minHeight: "50px" }}>
-        <h6 className="mb-0 fw-bold d-flex align-items-center">
-          <i className="bi bi-receipt-cutoff me-2 fs-5"></i>
-          STOCK SALE POS
-        </h6>
-        <div className="d-flex align-items-center gap-3">
-           <div className="d-flex align-items-center bg-white bg-opacity-10 px-3 py-1 rounded-pill small border border-white border-opacity-25">
-             <i className="bi bi-calendar3 me-2"></i>
-             <span>{localStorage.getItem("loginDate") ? new Date(localStorage.getItem("loginDate")).toLocaleDateString("en-GB") : new Date().toLocaleDateString("en-GB")}</span>
-           </div>
-           <button
-             className="btn btn-warning btn-sm fw-bold shadow-sm py-1 px-3"
-             onClick={() => {
-               if (!showSaleTable) fetchTransactions();
-               setShowSaleTable(!showSaleTable);
-             }}
-           >
-             <i className={`bi ${showSaleTable ? "bi-plus-circle" : "bi-list-ul"} me-2`}></i>
-             {showSaleTable ? "New Sale Entry" : "Show Sale List"}
-           </button>
-        </div>
-      </div>
-
-      <div className="d-flex flex-grow-1 overflow-hidden">
-        {showSaleTable ? (
-          /* --- Transaction List View (Full Screen) --- */
-          <div className="flex-grow-1 p-3 overflow-auto bg-white animate__animated animate__fadeIn">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <h5 className="fw-bold text-dark mb-0">RECENT SALES TRANSACTIONS</h5>
-              <button className="btn btn-sm btn-outline-secondary" onClick={() => setShowSaleTable(false)}>
-                <i className="bi bi-arrow-left me-2"></i>Back to Sale
-              </button>
-            </div>
-            <CommonTable
-              columns={transactionColumns}
-              data={saleTransactions}
-              showActions={true}
-              onEdit={(_, rowIndex) => handleEditSale(rowIndex)}
-              onDelete={(_, rowIndex) => handleDeleteSale(rowIndex)}
-              onSearchChange={setSearchTransaction}
-              searchValue={searchTransaction}
-              onClose={() => setShowSaleTable(false)}
-            />
+    <div
+      className="container-fluid p-3"
+      style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}
+    >
+      <div className="card shadow border-0 rounded-4 overflow-hidden mb-4">
+        {/* --- Header: Mocked Labels --- */}
+        <div
+          className="card-header border-0 text-white p-3 d-flex justify-content-between align-items-center"
+          style={{ backgroundColor: "#1e293b" }}
+        >
+          <h5 className="mb-0 fw-bold">Stock Sale</h5>
+          <div className="d-flex align-items-center gap-3">
+            <button
+              className="btn btn-warning btn-sm fw-bold shadow-sm"
+              onClick={() => {
+                if (!showSaleTable) fetchTransactions();
+                setShowSaleTable(!showSaleTable);
+              }}
+            >
+              <i
+                className={`bi ${
+                  showSaleTable ? "bi-plus-circle" : "bi-list-ul"
+                } me-2`}
+              ></i>
+              {showSaleTable ? "New Sale Entry" : "Show Sale List"}
+            </button>
           </div>
-        ) : (
-          /* --- Main POS Entry Area (Horizontal Layout) --- */
-          <div className="flex-grow-1 d-flex flex-column overflow-hidden">
-            {/* Customer & Master Info Row */}
-            <div className="bg-white border-bottom p-2 d-flex align-items-center gap-4">
-               <div style={{ minWidth: "250px" }}>
-                  <div className="input-group input-group-sm border rounded bg-light">
-                    <span className="input-group-text bg-transparent border-0"><i className="bi bi-person text-muted"></i></span>
+        </div>
+
+        <div className="card-body p-4">
+          {showSaleTable ? (
+            <div className="animate__animated animate__fadeIn">
+              <CommonTable
+                columns={transactionColumns}
+                data={saleTransactions}
+                showActions={true}
+                onEdit={(_, rowIndex) => handleEditSale(rowIndex)}
+                onDelete={(_, rowIndex) => handleDeleteSale(rowIndex)}
+                onSearchChange={setSearchTransaction}
+                searchValue={searchTransaction}
+                onClose={() => setShowSaleTable(false)}
+              />
+            </div>
+          ) : (
+            <>
+              {/* --- Master Row: Customer & IGST --- */}
+              <div className="row g-3 mb-4 pb-3 border-bottom align-items-center">
+                <div className="col-md-4">
+                  <label className="form-label small fw-bold text-muted">
+                    Customer Name
+                  </label>
+                  <div className="input-group input-group-sm shadow-sm">
+                    <span className="input-group-text bg-white">
+                      <i className="bi bi-person"></i>
+                    </span>
                     <input
                       type="text"
                       id="customerName"
-                      className="form-control border-0 bg-transparent fw-medium"
+                      className="form-control"
                       value={formData.customerName}
                       onChange={handleInputChange}
-                      placeholder="Customer Name"
+                      placeholder="Walk-in Customer"
                     />
                   </div>
-               </div>
-               <div className="d-flex align-items-center gap-2">
-                  <div className="form-check form-switch mb-0">
-                    <input className="form-check-input" type="checkbox" id="isIGST" checked={formData.isIGST} onChange={handleInputChange} />
-                    <label className="form-check-label x-small fw-bold text-muted" htmlFor="isIGST">IGST</label>
-                  </div>
-               </div>
-               <div className="ms-auto d-flex gap-2 align-items-center">
-                  <span className="x-small fw-bold text-muted">SALES ID:</span>
-                  <span className="badge bg-dark text-white px-3">{formData.saleId || "NEW"}</span>
-               </div>
-            </div>
-
-            {/* Item Entry Row - High Density Horizontal */}
-            <div className="bg-white border-bottom p-2 shadow-sm z-1">
-              <div className="row gx-1 gy-0 align-items-end">
-                <div className="col-md-1">
-                  <label className="x-small fw-bold text-muted mb-0">ITEM NO</label>
-                  <input type="text" id="itemNo" className="form-control form-control-sm border-0 bg-light" value={formData.itemNo} onChange={handleInputChange} />
                 </div>
                 <div className="col-md-2">
-                  <label className="x-small fw-bold text-muted mb-0">BARCODE</label>
-                  <input type="text" id="barcode" className="form-control form-control-sm border-0 bg-light" value={formData.barcode} onChange={handleInputChange} placeholder="Scan barcode..." />
-                </div>
-                <div className="col-md-2 position-relative">
-                  <label className="x-small fw-bold text-muted mb-0">ITEM NAME</label>
-                  <input type="text" id="itemName" className="form-control form-control-sm border-0 bg-light" value={formData.itemName} onChange={handleInputChange} placeholder="Type product name..." autoComplete="off" />
-                  {filteredStock.length > 0 && (
-                    <ul className="list-group position-absolute w-100 shadow-lg z-3 border-0" style={{ maxHeight: "300px", overflowY: "auto", top: "100%" }}>
-                      {filteredStock.map((item) => (
-                        <li key={item.Stock_id} className="list-group-item list-group-item-action x-small py-2 d-flex justify-content-between cursor-pointer border-bottom" onClick={() => selectStockItem(item)}>
-                          <span>{item.Stock_name}</span>
-                          <span className="badge bg-primary-subtle text-primary rounded-pill">Qty: {item.Stock_unit}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-                <div className="col-md-1">
-                  <div className="d-flex justify-content-between">
-                    <label className="x-small fw-bold text-muted mb-0">QTY</label>
-                    <span className="x-small text-primary fw-bold">{formData.stockId ? `S:${formData.currentStock}` : ""}</span>
+                  <div className="form-check form-switch mt-4">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id="isIGST"
+                      checked={formData.isIGST}
+                      onChange={handleInputChange}
+                    />
+                    <label
+                      className="form-check-label small fw-bold text-muted"
+                      htmlFor="isIGST"
+                    >
+                      IGST Enabled
+                    </label>
                   </div>
-                  <input type="number" id="quantity" min="1" className="form-control form-control-sm text-center fw-bold border-primary border-opacity-25" value={formData.quantity} onChange={handleInputChange} />
-                </div>
-                <div className="col-md-1">
-                  <label className="x-small fw-bold text-muted mb-0">MRP</label>
-                  <input type="number" id="mrp" className="form-control form-control-sm text-end border-0 bg-light" value={formData.mrp} onChange={handleInputChange} />
-                </div>
-                <div className="col-md-1">
-                  <label className="x-small fw-bold text-muted mb-0">DISC</label>
-                  <input type="number" id="discount" className="form-control form-control-sm text-center border-0 bg-light text-danger" value={formData.discount} onChange={handleInputChange} />
-                </div>
-                <div className="col-md-1">
-                  <label className="x-small fw-bold text-muted mb-0">TOTAL</label>
-                  <div className="form-control form-control-sm bg-light-subtle border-0 text-end fw-bold">₹{formData.rowTotalAmount}</div>
-                </div>
-                <div className="col-md-2">
-                  <button type="button" className={`btn ${formData.id ? "btn-success" : "btn-primary"} btn-sm fw-bold w-100 shadow-sm py-1`} onClick={addItem}>
-                    <i className={`bi ${formData.id ? "bi-check-circle" : "bi-cart-plus"} me-1`}></i>
-                    {formData.id ? "UPDATE" : "ADD ITEM"}
-                  </button>
                 </div>
               </div>
-            </div>
 
-            {/* Table Container - Flexible height with restricted max-height to fit ~5 items */}
-            <div className="overflow-auto bg-white border-bottom custom-scrollbar" style={{ minHeight: "220px", maxHeight: "250px" }}>
-              <table className="table table-sm table-hover mb-0 pos-table">
-                <thead className="bg-light sticky-top shadow-xs">
-                  <tr>
-                    <th className="ps-3" style={{ width: "50px" }}>#</th>
-                    <th style={{ width: "100px" }}>Item No</th>
-                    <th>Item Description</th>
-                    <th className="text-center" style={{ width: "80px" }}>Qty</th>
-                    <th className="text-end" style={{ width: "100px" }}>MRP</th>
-                    <th className="text-end" style={{ width: "100px" }}>Discount</th>
-                    <th className="text-end" style={{ width: "100px" }}>Taxable</th>
-                    <th className="text-end" style={{ width: "120px" }}>Amount</th>
-                    <th className="text-center" style={{ width: "100px" }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {itemsList.map((item, idx) => (
-                    <tr key={item.id} className="align-middle">
-                      <td className="ps-3 text-muted x-small">{idx + 1}</td>
-                      <td className="x-small">{item.itemNo}</td>
-                      <td className="small fw-medium">{item.itemName}</td>
-                      <td className="text-center fw-bold">{item.quantity}</td>
-                      <td className="text-end">₹{item.mrp.toFixed(2)}</td>
-                      <td className="text-end text-danger">₹{item.discount.toFixed(2)}</td>
-                      <td className="text-end">₹{item.taxableAmount.toFixed(2)}</td>
-                      <td className="text-end fw-bold text-primary">₹{item.rowTotalAmount.toFixed(2)}</td>
-                      <td className="text-center">
-                        <div className="btn-group btn-group-xs">
-                          <button className="btn btn-light btn-xs p-1" onClick={() => {
-                            const rawStock = getStockValueFromStore(item.stockId);
-                            setFormData(prev => ({
-                              ...prev,
-                              ...item,
-                              currentStock: getEffectiveStock(item.stockId, rawStock),
-                            }));
-                          }}><i className="bi bi-pencil text-primary"></i></button>
-                          <button className="btn btn-light btn-xs p-1" onClick={() => removeItem(idx)}><i className="bi bi-trash text-danger"></i></button>
+              {/* --- Item Entry Section --- */}
+              <div
+                className="bg-white p-3 rounded-4 shadow-sm border mb-4"
+                style={{ borderLeft: "4px solid #3b82f6" }}
+              >
+                <h6 className="fw-bold mb-3 text-primary">
+                  <i className="bi bi-plus-circle-fill me-2"></i>Add Item
+                </h6>
+                {/* Entry Row 1 */}
+                <div className="row g-2 mb-3">
+                  <div className="col-md-2">
+                    <label className="form-label x-small fw-bold">
+                      Item No
+                    </label>
+                    <input
+                      type="text"
+                      id="itemNo"
+                      className="form-control form-control-sm"
+                      value={formData.itemNo}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="col-md-2">
+                    <label className="form-label x-small fw-bold">
+                      Barcode
+                    </label>
+                    <input
+                      type="text"
+                      id="barcode"
+                      className="form-control form-control-sm"
+                      value={formData.barcode}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="col-md-8 position-relative">
+                    <label className="form-label x-small fw-bold">
+                      Item Name
+                    </label>
+                    <div className="input-group input-group-sm">
+                      <input
+                        type="text"
+                        id="itemName"
+                        className="form-control"
+                        value={formData.itemName}
+                        onChange={handleInputChange}
+                        placeholder="Search item..."
+                        autoComplete="off"
+                      />
+                      <button
+                        className="btn btn-outline-secondary"
+                        type="button"
+                      >
+                        <i className="bi bi-search"></i>
+                      </button>
+                    </div>
+                    {filteredStock.length > 0 && (
+                      <ul
+                        className="list-group position-absolute w-100 shadow-lg z-3"
+                        style={{ maxHeight: "200px", overflowY: "auto" }}
+                      >
+                        {filteredStock.map((item) => (
+                          <li
+                            key={item.Stock_id}
+                            className="list-group-item list-group-item-action small py-2 d-flex justify-content-between cursor-pointer"
+                            onClick={() => selectStockItem(item)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            <span>{item.Stock_name}</span>
+                            <span className="badge bg-primary rounded-pill">
+                              Stock: {item.Stock_unit}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+                {/* Entry Row 2 */}
+                <div className="row g-2 align-items-end">
+                  <div className="col">
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <label className="form-label x-small fw-bold mb-0">
+                        Qty
+                      </label>
+                      <span className="x-small fw-bold text-white bg-primary px-2 rounded-pill shadow-sm">
+                        Stock: {formData.stockId ? formData.currentStock : "-"}
+                      </span>
+                    </div>
+                    <input
+                      type="number"
+                      id="quantity"
+                      className="form-control form-control-sm text-center fw-bold text-primary"
+                      value={formData.quantity}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="col">
+                    <label className="form-label x-small fw-bold">MRP</label>
+                    <input
+                      type="number"
+                      id="mrp"
+                      className="form-control form-control-sm text-end"
+                      value={formData.mrp}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="col">
+                    <label className="form-label x-small fw-bold">
+                      Disc (Amt)
+                    </label>
+                    <input
+                      type="number"
+                      id="discount"
+                      className="form-control form-control-sm text-center text-danger"
+                      value={formData.discount}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="col">
+                    <label className="form-label x-small fw-bold text-success">
+                      Taxable
+                    </label>
+                    <div className="form-control form-control-sm fw-bold bg-light text-end">
+                      ₹{formData.taxableAmount}
+                    </div>
+                  </div>
+                  <div className="col">
+                    <label className="form-label x-small fw-bold text-muted">
+                      CGST ({formData.cgst}%)
+                    </label>
+                    <div className="form-control form-control-sm bg-light text-end">
+                      ₹{formData.cgstAmount}
+                    </div>
+                  </div>
+                  <div className="col">
+                    <label className="form-label x-small fw-bold text-muted">
+                      SGST ({formData.sgst}%)
+                    </label>
+                    <div className="form-control form-control-sm bg-light text-end">
+                      ₹{formData.sgstAmount}
+                    </div>
+                  </div>
+                  <div className="col-md-2">
+                    <div
+                      className="small fw-bold text-primary mb-1 text-end"
+                      style={{ fontSize: "10px" }}
+                    >
+                      Row Total: ₹{formData.rowTotalAmount}
+                    </div>
+                    <button
+                      type="button"
+                      className={`btn ${
+                        formData.id ? "btn-success" : "btn-primary"
+                      } btn-sm fw-bold w-100 shadow-sm`}
+                      onClick={addItem}
+                    >
+                      <i
+                        className={`bi ${
+                          formData.id ? "bi-check-circle" : "bi-cart-plus"
+                        } me-2`}
+                      ></i>
+                      {formData.id ? "Update Item" : "Add to List"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* --- Items List Table --- */}
+              <div className="mb-4 shadow-sm rounded-4 overflow-hidden border">
+                <CommonTable
+                  columns={columns}
+                  data={itemsList}
+                  showActions={true}
+                  onDelete={(_, idx) => removeItem(idx)}
+                  onEdit={(item) => {
+                    const rawStock = getStockValueFromStore(item.stockId);
+                    setFormData((prev) => ({
+                      ...prev,
+                      ...item,
+                      currentStock: getEffectiveStock(item.stockId, rawStock),
+                    }));
+                  }}
+                  showSearch={false}
+                />
+              </div>
+
+              {/* --- Bottom Summary & Payments --- */}
+              <div className="row g-4 pt-3">
+                {/* Left: Summary Totals */}
+                <div className="col-md-4">
+                  <div className="card h-100 border-0 shadow-sm bg-light-subtle">
+                    <div className="card-body">
+                      <h6 className="fw-bold mb-3 border-bottom pb-2 text-secondary">
+                        <i className="bi bi-graph-up me-2"></i>Sale Summary
+                      </h6>
+                      <div className="d-flex justify-content-between mb-2 small text-muted">
+                        <span>Total Quantity:</span>
+                        <span className="fw-bold text-dark">
+                          {totals.totalQty}
+                        </span>
+                      </div>
+                      <div className="d-flex justify-content-between mb-2 small text-muted">
+                        <span>Total Discount:</span>
+                        <span className="fw-bold text-danger">
+                          - ₹{totals.totalDiscount}
+                        </span>
+                      </div>
+                      <div className="d-flex justify-content-between mb-3 text-muted">
+                        <span className="fw-bold">Total Amount:</span>
+                        <span className="fw-bold text-dark h6">
+                          ₹{totals.totalAmountItems}
+                        </span>
+                      </div>
+                      <div className="row g-2 align-items-center mt-2">
+                        <div className="col-6 small fw-bold text-muted">
+                          Round Off:
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {itemsList.length === 0 && (
-                    <tr>
-                      <td colSpan="9" className="text-center py-4 text-muted small">
-                         <i className="bi bi-cart-x d-block fs-2 opacity-25 mb-2"></i>
-                         Your cart is empty.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Bottom Action Bar: Totals & Payments */}
-            <div className="bg-white p-3 border-top shadow-lg-reverse z-1 flex-grow-1">
-              <div className="row g-3 h-100">
-                 {/* Summary Totals */}
-                 <div className="col-md-3">
-                    <div className="bg-light p-3 rounded border h-100 d-flex flex-column justify-content-between shadow-sm">
-                      <div className="d-flex justify-content-between x-small mb-2">
-                        <span className="text-muted fw-bold">Items Count:</span>
-                        <span className="fw-bold">{itemsList.length}</span>
-                      </div>
-                      <div className="d-flex justify-content-between x-small mb-2">
-                        <span className="text-muted fw-bold">Total Qty:</span>
-                        <span className="fw-bold">{totals.totalQty}</span>
-                      </div>
-                      <div className="d-flex justify-content-between x-small mb-2 text-danger">
-                        <span className="fw-bold">Total Discount:</span>
-                        <span className="fw-bold">- ₹{totals.totalDiscount}</span>
-                      </div>
-                      <div className="d-flex justify-content-between align-items-center mt-auto pt-2 border-top">
-                        <span className="x-small fw-bold">Round Off:</span>
-                        <input type="number" id="roundOff" className="form-control form-control-xs text-end fw-bold" style={{ width: "80px" }} value={formData.roundOff} onChange={handleInputChange} />
+                        <div className="col-6">
+                          <input
+                            type="number"
+                            id="roundOff"
+                            className="form-control form-control-sm text-end fw-bold"
+                            value={formData.roundOff}
+                            onChange={handleInputChange}
+                          />
+                        </div>
                       </div>
                     </div>
-                 </div>
+                  </div>
+                </div>
 
-                 {/* Payment Inputs */}
-                 <div className="col-md-5">
-                   <div className="bg-light p-3 rounded border h-100 shadow-sm">
-                      <div className="row g-3">
-                         <div className="col-6">
-                            <label className="x-small fw-bold text-success mb-2 text-uppercase">Cash Received</label>
-                            <div className="input-group input-group-sm">
-                              <span className="input-group-text bg-success bg-opacity-10 text-success border-success">₹</span>
-                              <input type="number" id="cashReceived" className="form-control fw-bold text-success border-success" value={formData.cashReceived} onChange={handleInputChange} />
-                            </div>
-                         </div>
-                         <div className="col-6">
-                            <label className="x-small fw-bold text-primary mb-2 text-uppercase">UPI / Online</label>
-                            <div className="input-group input-group-sm">
-                              <span className="input-group-text bg-primary bg-opacity-10 text-primary border-primary"><i className="bi bi-qr-code"></i></span>
-                              <input type="number" id="paymentUPI" className="form-control fw-bold text-primary border-primary" value={formData.paymentUPI} onChange={handleInputChange} />
-                            </div>
-                         </div>
-                      </div>
-                      <div className="d-flex justify-content-between align-items-center mt-3">
-                         {parseFloat(totals.cashReturn) > 0 ? (
-                           <div className="badge bg-warning text-dark border border-warning px-3 py-2 shadow-sm">
-                              RETURN: ₹{totals.cashReturn}
-                           </div>
-                         ) : parseFloat(totals.balanceDue) > 0 ? (
-                           <div className="badge bg-danger-subtle text-danger border border-danger px-3 py-2 shadow-sm">
-                              DUE: ₹{totals.balanceDue}
-                           </div>
-                         ) : totals.grandTotal > 0 ? (
-                           <div className="badge bg-success text-white px-3 py-2 shadow-sm">PAID FULL</div>
-                         ) : <div></div>}
-                         
-                         <div className="text-muted x-small italic text-end" style={{ maxWidth: "200px" }}>{numberToWords(Math.round(totals.grandTotal))}</div>
-                      </div>
-                   </div>
-                 </div>
+                {/* Middle: Payments */}
+                <div className="col-md-4">
+                  <div
+                    className="card h-100 border-0 shadow-sm"
+                    style={{ backgroundColor: "#f0fdf4" }}
+                  >
+                    <div className="card-body">
+                      <h6 className="fw-bold mb-3 border-bottom pb-2 text-success">
+                        <i className="bi bi-cash-stack me-2"></i>Payment Details
+                      </h6>
 
-                 {/* Grand Total & Final Actions */}
-                 <div className="col-md-4">
-                    <div className="bg-primary text-white p-3 rounded shadow d-flex align-items-center justify-content-between h-100">
-                      <div className="text-start">
-                        <div className="x-small opacity-75 fw-bold text-uppercase mb-1">Grand Total</div>
-                        <h2 className="mb-0 fw-bold">₹{totals.grandTotal}</h2>
+                      {/* Cash Section */}
+                      <div className="mb-3 p-3 border rounded bg-white shadow-sm">
+                        <label className="form-label x-small fw-bold text-success text-uppercase mb-2">
+                          Cash Section
+                        </label>
+                        <div className="mb-2">
+                          <label className="form-label x-small fw-bold text-muted mb-1">
+                            Receive Cash
+                          </label>
+                          <div className="input-group input-group-sm">
+                            <span className="input-group-text bg-success bg-opacity-10 border-success text-success">
+                              ₹
+                            </span>
+                            <input
+                              type="number"
+                              id="cashReceived"
+                              className="form-control fw-bold border-success text-success"
+                              value={formData.cashReceived}
+                              onChange={handleInputChange}
+                            />
+                          </div>
+                        </div>
+                        {(parseFloat(totals.cashReturn) > 0 ||
+                          parseFloat(formData.cashReceived) >
+                            parseFloat(totals.grandTotal) -
+                              (parseFloat(formData.paymentUPI) || 0)) && (
+                          <div className="mb-0 animate__animated animate__fadeIn">
+                            <label className="form-label x-small fw-bold text-muted mb-1">
+                              Return Cash
+                            </label>
+                            <div className="input-group input-group-sm">
+                              <span className="input-group-text bg-warning bg-opacity-10 border-warning text-dark">
+                                ₹
+                              </span>
+                              <input
+                                type="text"
+                                className="form-control fw-bold bg-light border-warning"
+                                value={totals.cashReturn}
+                                readOnly
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <div className="d-flex flex-column gap-2" style={{ width: "160px" }}>
-                        <button className="btn btn-light fw-bold py-2 shadow-sm" onClick={handleSaveSale} disabled={itemsList.length === 0 || isLoading}>
-                          <i className="bi bi-check2-circle me-1"></i> {isLoading ? "SAVING..." : (formData.saleId ? "UPDATE" : "SAVE & PRINT")}
+
+                      {/* UPI Section */}
+                      <div className="mb-3 p-3 border rounded bg-white shadow-sm">
+                        <label className="form-label x-small fw-bold text-primary text-uppercase mb-2">
+                          UPI / Online Section
+                        </label>
+                        <div className="mb-2">
+                          <label className="form-label x-small fw-bold text-muted mb-1">
+                            UPI Amount
+                          </label>
+                          <div className="input-group input-group-sm">
+                            <span className="input-group-text bg-primary bg-opacity-10 border-primary text-primary">
+                              <i className="bi bi-qr-code"></i>
+                            </span>
+                            <input
+                              type="number"
+                              id="paymentUPI"
+                              className="form-control fw-bold border-primary text-primary"
+                              value={formData.paymentUPI}
+                              onChange={handleInputChange}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Payment Status Badges */}
+                      {parseFloat(totals.balanceDue) > 0 && (
+                        <div className="bg-danger bg-opacity-10 p-2 rounded border border-danger d-flex justify-content-between align-items-center mb-2 animate__animated animate__headShake">
+                          <span className="small fw-bold text-danger">
+                            Balance Due:
+                          </span>
+                          <span className="h6 mb-0 fw-bold text-danger">
+                            ₹{totals.balanceDue}
+                          </span>
+                        </div>
+                      )}
+
+                      {parseFloat(totals.grandTotal) > 0 &&
+                        parseFloat(totals.cashReturn) === 0 &&
+                        parseFloat(totals.balanceDue) === 0 && (
+                          <div className="bg-primary bg-opacity-10 p-2 rounded border border-primary d-flex justify-content-between align-items-center animate__animated animate__pulse">
+                            <span className="small fw-bold text-primary">
+                              Payment Status:
+                            </span>
+                            <span className="h6 mb-0 fw-bold text-primary">
+                              Full Paid
+                            </span>
+                          </div>
+                        )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Bill Action */}
+                <div className="col-md-4">
+                  <div
+                    className="card h-100 border-0 shadow-lg text-white"
+                    style={{ backgroundColor: "#3b82f6" }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <span className="small fw-bold text-uppercase opacity-75">
+                        Total Bill Amount
+                      </span>
+                      <h1 className="fw-bold mb-4">₹{totals.grandTotal}</h1>
+                      <div className="d-grid gap-2">
+                        <button
+                          className="btn btn-light fw-bold py-2"
+                          onClick={handleSaveSale}
+                          disabled={itemsList.length === 0 || isLoading}
+                        >
+                          <i className="bi bi-check-circle-fill me-2"></i>
+                          {isLoading
+                            ? "Saving..."
+                            : formData.saleId
+                            ? "Update Sale"
+                            : "Save Sale"}
                         </button>
-                        <button className="btn btn-outline-light btn-sm fw-bold py-1" onClick={() => handlePrintReceipt()} disabled={itemsList.length === 0}>
-                          <i className="bi bi-printer me-1"></i> PRINT
+                        <button
+                          className="btn btn-outline-light fw-bold py-2"
+                          onClick={() => handlePrintReceipt()}
+                          disabled={itemsList.length === 0}
+                        >
+                          <i className="bi bi-printer me-2"></i>Print Receipt
                         </button>
-                        <button className="btn btn-link btn-sm text-white py-0 x-small text-decoration-none opacity-75" onClick={() => {
-                           if (window.confirm("Cancel this transaction?")) {
+                        <button
+                          className="btn btn-link text-white text-decoration-none small mt-2 opacity-75"
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                "Are you sure you want to cancel? All items will be removed."
+                              )
+                            ) {
                               setItemsList([]);
-                              setFormData(prev => ({ ...prev, saleId: null }));
-                           }
-                        }}>CANCEL SALE</button>
+                              setFormData((prev) => ({
+                                ...prev,
+                                saleId: null,
+                              }));
+                            }
+                          }}
+                        >
+                          Cancel Transaction
+                        </button>
                       </div>
                     </div>
-                 </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            </>
+          )}
+        </div>
       </div>
 
       {showDetailsModal && <SaleDetailsModal />}
 
       <style>{`
-        .pos-container { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f1f5f9 !important; }
-        .x-small { font-size: 0.75rem; }
-        .btn-xs { padding: 0.1rem 0.3rem; font-size: 0.75rem; }
-        .form-control-xs { height: 28px; padding: 0.125rem 0.25rem; font-size: 0.75rem; }
-        .bg-light-subtle { background-color: #f8fafc !important; }
-        .pos-table th { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.6rem 0.4rem; color: #64748b; background-color: #f8fafc; }
-        .pos-table td { padding: 0.35rem 0.4rem; font-size: 0.8rem; border-color: #f1f5f9; }
-        .sticky-top { top: 0; z-index: 10; }
-        .shadow-xs { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-        .shadow-lg-reverse { box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05); }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .cursor-pointer { cursor: pointer; }
-        .pos-header { z-index: 1020; }
-        .list-group-item-action:hover { background-color: #f8fafc; }
-        .animate__slideInLeft { --animate-duration: 0.3s; }
+        .x-small { font-size: 0.7rem; }
+        .bg-light-subtle { background-color: #f1f5f9 !important; }
+        .form-control:focus {
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 0.15rem rgba(59, 130, 246, 0.25);
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+        .form-check-input:checked {
+          background-color: #3b82f6;
+          border-color: #3b82f6;
+        }
       `}</style>
     </div>
   );

@@ -46,6 +46,7 @@ import Salesreturn from "./pages/masters/stock/Salesreturn";
 import BarcodeGenerator from "./pages/utility/Barcode";
 import Ratechange from "./pages/masters/stock/Ratechange";
 import CounterClose from "./pages/masters/general/CounterClose";
+import DayClose from "./pages/masters/general/DayClose";
 
 function App() {
   return (
@@ -98,6 +99,7 @@ function App() {
             <Route path="/barcode" element={<BarcodeGenerator />} />
             <Route path="/ratechange" element={<Ratechange />} />
             <Route path="/counterclose" element={<CounterClose />} />
+            <Route path="/dayclose" element={<DayClose />} />
           </Route>
         </Routes>
       </Router>

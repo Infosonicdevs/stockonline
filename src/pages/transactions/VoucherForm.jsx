@@ -10,18 +10,23 @@ import { toast } from "react-toastify";
 
 function VoucherForm() {
   const [voucherType, setVoucherType] = useState("journal");
-  const [ledger, setLedger] = useState("");
-  const [dropdown1, setDropdown1] = useState("");
-  const [dropdown2, setDropdown2] = useState("A");
+  const [drLedger, setDrLedger] = useState("");
+  const [drDropdown1, setDrDropdown1] = useState("");
+  const [crLedger, setCrLedger] = useState("");
+  const [crDropdown1, setCrDropdown1] = useState("");
   const [amount, setAmount] = useState("00.00");
   const [tableData, setTableData] = useState([]);
   const [showTable, setShowTable] = useState(false);
   const [ledgerList, setLedgerList] = useState([]);
-  const [customerNo, setCustomerNo] = useState("");
-  const [customer, setCustomer] = useState("");
-  const [customerName, setCustomerName] = useState("");
+  const [drCustomerNo, setDrCustomerNo] = useState("");
+  const [drCustomer, setDrCustomer] = useState("");
+  const [drCustomerName, setDrCustomerName] = useState("");
+  const [crCustomerNo, setCrCustomerNo] = useState("");
+  const [crCustomer, setCrCustomer] = useState("");
+  const [crCustomerName, setCrCustomerName] = useState("");
   const [customerList, setCustomerList] = useState([]);
-  const [isCustomerEnabled, setIsCustomerEnabled] = useState(false);
+  const [isDrCustomerEnabled, setIsDrCustomerEnabled] = useState(false);
+  const [isCrCustomerEnabled, setIsCrCustomerEnabled] = useState(false);
   const [transList, setTransList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editIndex, setEditIndex] = useState(null);
@@ -139,157 +144,273 @@ function VoucherForm() {
       .catch((err) => console.log(err));
   }, []);
 
-  const handleCustomerNoChange = (e) => {
-    setCustomerNo(e.target.value);
+  const handleCustomerNoChange = (e, side) => {
+    const val = e.target.value;
     const selectedCustomer = customerList.find(
-      (c) => c.Cust_no.toString() === e.target.value.toString(),
+      (c) => c.Cust_no.toString() === val.toString(),
     );
-    if (selectedCustomer) {
-      setCustomer(selectedCustomer.Cust_id);
-      setCustomerName(selectedCustomer.Cust_name);
+
+    if (side === "dr") {
+      setDrCustomerNo(val);
+      if (selectedCustomer) {
+        setDrCustomer(selectedCustomer.Cust_id);
+        setDrCustomerName(selectedCustomer.Cust_name);
+      } else {
+        setDrCustomer("");
+        setDrCustomerName("");
+      }
     } else {
-      setCustomer("");
-      setCustomerName("");
+      setCrCustomerNo(val);
+      if (selectedCustomer) {
+        setCrCustomer(selectedCustomer.Cust_id);
+        setCrCustomerName(selectedCustomer.Cust_name);
+      } else {
+        setCrCustomer("");
+        setCrCustomerName("");
+      }
     }
   };
 
-  const handleCustomerChange = (e) => {
-    setCustomer(e.target.value);
+  const handleCustomerChange = (e, side) => {
+    const val = e.target.value;
     const selectedCustomer = customerList.find(
-      (c) => c.Cust_id.toString() === e.target.value.toString(),
+      (c) => c.Cust_id.toString() === val.toString(),
     );
-    if (selectedCustomer) {
-      setCustomerName(selectedCustomer.Cust_name);
-      setCustomerNo(selectedCustomer.Cust_no);
+
+    if (side === "dr") {
+      setDrCustomer(val);
+      if (selectedCustomer) {
+        setDrCustomerName(selectedCustomer.Cust_name);
+        setDrCustomerNo(selectedCustomer.Cust_no);
+      } else {
+        setDrCustomerName("");
+        setDrCustomerNo("");
+      }
     } else {
-      setCustomerName("");
-      setCustomerNo("");
+      setCrCustomer(val);
+      if (selectedCustomer) {
+        setCrCustomerName(selectedCustomer.Cust_name);
+        setCrCustomerNo(selectedCustomer.Cust_no);
+      } else {
+        setCrCustomerName("");
+        setCrCustomerNo("");
+      }
     }
   };
 
-  const handleLedgerNoChange = async (value) => {
-    setDropdown1(value);
-
+  const handleLedgerNoChange = async (value, side) => {
     const selectedLedger = ledgerList.find(
       (l) => l.Ledger_no.toString() === value.toString(),
     );
 
-    if (selectedLedger) {
-      setLedger(selectedLedger.Ledger_id);
-
-      // Check if ledger is personal via API
-      try {
-        const res = await apiClient.get(
-          `/api/CheckPersonalLedger?L_id=${selectedLedger.Ledger_id}`,
-        );
-        if (res.data && res.data.length > 0 && res.data[0].Is_personal === 1) {
-          setIsCustomerEnabled(true); // enable customer selection
-        } else {
-          setIsCustomerEnabled(false); // disable customer selection
-          setCustomerNo("");
-          setCustomer("");
-          setCustomerName("");
+    if (side === "dr") {
+      setDrDropdown1(value);
+      if (selectedLedger) {
+        setDrLedger(selectedLedger.Ledger_id);
+        try {
+          const res = await apiClient.get(
+            `/api/CheckPersonalLedger?L_id=${selectedLedger.Ledger_id}`,
+          );
+          if (res.data && res.data.length > 0 && res.data[0].Is_personal === 1) {
+            setIsDrCustomerEnabled(true);
+          } else {
+            setIsDrCustomerEnabled(false);
+            setDrCustomerNo("");
+            setDrCustomer("");
+            setDrCustomerName("");
+          }
+        } catch (err) {
+          console.log(err);
+          setIsDrCustomerEnabled(false);
         }
-      } catch (err) {
-        console.log(err);
-        setIsCustomerEnabled(false);
+      } else {
+        setDrLedger("");
+        setIsDrCustomerEnabled(false);
+        setDrCustomerNo("");
+        setDrCustomer("");
+        setDrCustomerName("");
       }
     } else {
-      setLedger("");
-      setIsCustomerEnabled(false);
-      setCustomerNo("");
-      setCustomer("");
-      setCustomerName("");
+      setCrDropdown1(value);
+      if (selectedLedger) {
+        setCrLedger(selectedLedger.Ledger_id);
+        try {
+          const res = await apiClient.get(
+            `/api/CheckPersonalLedger?L_id=${selectedLedger.Ledger_id}`,
+          );
+          if (res.data && res.data.length > 0 && res.data[0].Is_personal === 1) {
+            setIsCrCustomerEnabled(true);
+          } else {
+            setIsCrCustomerEnabled(false);
+            setCrCustomerNo("");
+            setCrCustomer("");
+            setCrCustomerName("");
+          }
+        } catch (err) {
+          console.log(err);
+          setIsCrCustomerEnabled(false);
+        }
+      } else {
+        setCrLedger("");
+        setIsCrCustomerEnabled(false);
+        setCrCustomerNo("");
+        setCrCustomer("");
+        setCrCustomerName("");
+      }
     }
   };
 
-  const handleLedgerNameChange = async (value) => {
+  const handleLedgerNameChange = async (value, side) => {
     const ledger_id = Number.parseInt(value);
-    setLedger(ledger_id);
-
     const selectedLedger = ledgerList.find((l) => l.Ledger_id === ledger_id);
 
-    if (selectedLedger) {
-      setDropdown1(selectedLedger.Ledger_no);
-
-      // Check personal ledger via API
-      try {
-        const res = await apiClient.get(
-          `/api/CheckPersonalLedger?L_id=${selectedLedger.Ledger_id}`,
-        );
-        if (res.data && res.data.length > 0 && res.data[0].Is_personal === 1) {
-          setIsCustomerEnabled(true);
-        } else {
-          setIsCustomerEnabled(false);
-          setCustomerNo("");
-          setCustomer("");
-          setCustomerName("");
+    if (side === "dr") {
+      setDrLedger(ledger_id);
+      if (selectedLedger) {
+        setDrDropdown1(selectedLedger.Ledger_no);
+        try {
+          const res = await apiClient.get(
+            `/api/CheckPersonalLedger?L_id=${selectedLedger.Ledger_id}`,
+          );
+          if (res.data && res.data.length > 0 && res.data[0].Is_personal === 1) {
+            setIsDrCustomerEnabled(true);
+          } else {
+            setIsDrCustomerEnabled(false);
+            setDrCustomerNo("");
+            setDrCustomer("");
+            setDrCustomerName("");
+          }
+        } catch (err) {
+          console.log(err);
+          setIsDrCustomerEnabled(false);
         }
-      } catch (err) {
-        console.log(err);
-        setIsCustomerEnabled(false);
+      } else {
+        setDrDropdown1("");
+        setIsDrCustomerEnabled(false);
+        setDrCustomerNo("");
+        setDrCustomer("");
+        setDrCustomerName("");
       }
     } else {
-      setDropdown1("");
-      setIsCustomerEnabled(false);
-      setCustomerNo("");
-      setCustomer("");
-      setCustomerName("");
+      setCrLedger(ledger_id);
+      if (selectedLedger) {
+        setCrDropdown1(selectedLedger.Ledger_no);
+        try {
+          const res = await apiClient.get(
+            `/api/CheckPersonalLedger?L_id=${selectedLedger.Ledger_id}`,
+          );
+          if (res.data && res.data.length > 0 && res.data[0].Is_personal === 1) {
+            setIsCrCustomerEnabled(true);
+          } else {
+            setIsCrCustomerEnabled(false);
+            setCrCustomerNo("");
+            setCrCustomer("");
+            setCrCustomerName("");
+          }
+        } catch (err) {
+          console.log(err);
+          setIsCrCustomerEnabled(false);
+        }
+      } else {
+        setCrDropdown1("");
+        setIsCrCustomerEnabled(false);
+        setCrCustomerNo("");
+        setCrCustomer("");
+        setCrCustomerName("");
+      }
     }
   };
 
   const handleAdd = () => {
-    console.log(ledger);
-    if (!ledger || !amount) return;
-
     const amountNum = Number(amount);
     if (isNaN(amountNum) || amountNum <= 0) return;
 
-    let jamaValue = 0;
-    let naaveValue = 0;
+    const newRows = [];
 
-    if (voucherType === "journal") jamaValue = amountNum;
-    else if (voucherType === "payment") naaveValue = amountNum;
-    else if (voucherType === "contra") {
-      if (dropdown2 === "A") jamaValue = amountNum;
-      else if (dropdown2 === "B") naaveValue = amountNum;
+    if (voucherType === "journal") {
+      // Credit side only
+      if (!crLedger) return;
+      newRows.push({
+        voucherType: "journal",
+        ledgerNo: crDropdown1 || ledgerList.find((l) => l.Ledger_id === crLedger)?.Ledger_no || "",
+        ledger_id: crLedger,
+        ledgerName: ledgerList.find((l) => l.Ledger_id === crLedger)?.Ledger_name || "",
+        customer_id: crCustomer,
+        customerName: crCustomerName,
+        jama: amountNum,
+        naave: 0,
+        crdr: "A",
+      });
+    } else if (voucherType === "payment") {
+      // Debit side only
+      if (!drLedger) return;
+      newRows.push({
+        voucherType: "payment",
+        ledgerNo: drDropdown1 || ledgerList.find((l) => l.Ledger_id === drLedger)?.Ledger_no || "",
+        ledger_id: drLedger,
+        ledgerName: ledgerList.find((l) => l.Ledger_id === drLedger)?.Ledger_name || "",
+        customer_id: drCustomer,
+        customerName: drCustomerName,
+        jama: 0,
+        naave: amountNum,
+        crdr: "B",
+      });
+    } else if (voucherType === "contra") {
+      // Both sides
+      if (!drLedger || !crLedger) return;
+      // Debit Row
+      newRows.push({
+        voucherType: "contra",
+        ledgerNo: drDropdown1 || ledgerList.find((l) => l.Ledger_id === drLedger)?.Ledger_no || "",
+        ledger_id: drLedger,
+        ledgerName: ledgerList.find((l) => l.Ledger_id === drLedger)?.Ledger_name || "",
+        customer_id: drCustomer,
+        customerName: drCustomerName,
+        jama: 0,
+        naave: amountNum,
+        crdr: "B",
+      });
+      // Credit Row
+      newRows.push({
+        voucherType: "contra",
+        ledgerNo: crDropdown1 || ledgerList.find((l) => l.Ledger_id === crLedger)?.Ledger_no || "",
+        ledger_id: crLedger,
+        ledgerName: ledgerList.find((l) => l.Ledger_id === crLedger)?.Ledger_name || "",
+        customer_id: crCustomer,
+        customerName: crCustomerName,
+        jama: amountNum,
+        naave: 0,
+        crdr: "A",
+      });
     }
 
-    const newRow = {
-      voucherType: voucherType,
-      ledgerNo:
-        dropdown1 ||
-        ledgerList.find((l) => l.Ledger_id === ledger)?.Ledger_no ||
-        "", // fallback
-      ledger_id: ledger,
-      ledgerName:
-        ledgerList.find((l) => l.Ledger_id === ledger)?.Ledger_name || "",
-      customer_id: customer,
-      customerName: customerName,
-      jama: jamaValue,
-      naave: naaveValue,
-      crdr: dropdown2,
-    };
-
-    setTableData((prev) => [...prev, newRow]);
+    setTableData((prev) => [...prev, ...newRows]);
 
     // Clear inputs
-    setLedger("");
-    setDropdown1("");
-    setDropdown2("A");
-    setCustomerNo("");
-    setCustomer("");
-    setCustomerName("");
+    setDrLedger("");
+    setDrDropdown1("");
+    setDrCustomerNo("");
+    setDrCustomer("");
+    setDrCustomerName("");
+    setCrLedger("");
+    setCrDropdown1("");
+    setCrCustomerNo("");
+    setCrCustomer("");
+    setCrCustomerName("");
     setAmount("00.00");
   };
   const handleClear = () => {
     setTableData([]);
-    setLedger("");
-    setDropdown1("");
-    setDropdown2("A");
-    setCustomerNo("");
-    setCustomer("");
-    setCustomerName("");
+    setDrLedger("");
+    setDrDropdown1("");
+    setDrCustomerNo("");
+    setDrCustomer("");
+    setDrCustomerName("");
+    setCrLedger("");
+    setCrDropdown1("");
+    setCrCustomerNo("");
+    setCrCustomer("");
+    setCrCustomerName("");
     setAmount("00.00");
     setEditIndex(null);
     setVoucherType("journal");
@@ -534,123 +655,212 @@ function VoucherForm() {
             </label>
           </div>
 
-          {/* Ledger + Dropdowns */}
-          <div className="row mt-2 align-items-end">
-            <div className="col-md-2">
-              <label
-                className="form-label"
-                style={{ fontSize: "14px", marginBottom: "2PX" }}
+          {/* Split Columns: Credit (Left) and Debit (Right) */}
+          <div className="row mt-3 g-3">
+            {/* Left Side: Credit (Jama) */}
+            <div className="col-md-6">
+              <div
+                className={`p-3 rounded shadow-sm h-100 ${
+                  voucherType === "payment" ? "bg-light text-muted" : "bg-white"
+                }`}
+                style={{
+                  border: "1px solid #e0e0e0",
+                  borderTop: "4px solid #28a745",
+                  transition: "all 0.3s ease",
+                  opacity: voucherType === "payment" ? 0.6 : 1,
+                  pointerEvents: voucherType === "payment" ? "none" : "auto",
+                }}
               >
-                Ledger No
-              </label>
-              <input
-                type="number"
-                className="form-control "
-                value={dropdown1}
-                style={{ height: "29px", fontSize: "14px" }}
-                onChange={(e) => handleLedgerNoChange(e.target.value)}
-              />
+                <div className="d-flex align-items-center justify-content-between mb-3">
+                  <h6 className="mb-0 fw-bold text-success">Credit (Jama)</h6>
+                  <span className="badge bg-success-soft text-success px-2 py-1" style={{ fontSize: "10px", backgroundColor: "#eaf7ed" }}>CREDIT SIDE</span>
+                </div>
+
+                <div className="row g-3">
+                  <div className="col-4">
+                    <label className="form-label mb-1 fw-semibold" style={{ fontSize: "12px" }}>
+                      Ledger No
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control form-control-sm border-secondary-subtle"
+                      value={crDropdown1}
+                      onChange={(e) => handleLedgerNoChange(e.target.value, "cr")}
+                      disabled={voucherType === "payment"}
+                      placeholder="No"
+                    />
+                  </div>
+                  <div className="col-8">
+                    <label className="form-label mb-1 fw-semibold" style={{ fontSize: "12px" }}>
+                      Ledger Name
+                    </label>
+                    <select
+                      className="form-select form-select-sm border-secondary-subtle"
+                      value={crLedger}
+                      onChange={(e) => handleLedgerNameChange(e.target.value, "cr")}
+                      disabled={voucherType === "payment"}
+                    >
+                      <option value="">Select Ledger</option>
+                      {ledgerList.map((item) => (
+                        <option key={item.Ledger_id} value={item.Ledger_id}>
+                          {item.Ledger_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="col-4">
+                    <label className="form-label mb-1 fw-semibold" style={{ fontSize: "12px" }}>
+                      Cust No
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm border-secondary-subtle"
+                      value={crCustomerNo}
+                      onChange={(e) => handleCustomerNoChange(e, "cr")}
+                      disabled={voucherType === "payment" || !isCrCustomerEnabled}
+                      placeholder="Cust #"
+                    />
+                  </div>
+                  <div className="col-8">
+                    <label className="form-label mb-1 fw-semibold" style={{ fontSize: "12px" }}>
+                      Customer Name
+                    </label>
+                    <select
+                      className="form-select form-select-sm border-secondary-subtle"
+                      value={crCustomer}
+                      onChange={(e) => handleCustomerChange(e, "cr")}
+                      disabled={voucherType === "payment" || !isCrCustomerEnabled}
+                    >
+                      <option value="">Select Customer</option>
+                      {customerList.map((c) => (
+                        <option key={c.Cust_id} value={c.Cust_id}>
+                          {c.Cust_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="col-md-5">
-              <select
-                className="form-select form-select-sm"
-                value={ledger}
-                style={{ height: "29px", fontSize: "13px" }}
-                onChange={(e) => handleLedgerNameChange(e.target.value)}
+            {/* Right Side: Debit (Nave) */}
+            <div className="col-md-6">
+              <div
+                className={`p-3 rounded shadow-sm h-100 ${
+                  voucherType === "journal" ? "bg-light text-muted" : "bg-white"
+                }`}
+                style={{
+                  border: "1px solid #e0e0e0",
+                  borderTop: "4px solid #007bff",
+                  transition: "all 0.3s ease",
+                  opacity: voucherType === "journal" ? 0.6 : 1,
+                  pointerEvents: voucherType === "journal" ? "none" : "auto",
+                }}
               >
-                <option value="">Select Ledger Name</option>
-                {ledgerList.map((item) => (
-                  <option key={item.Ledger_id} value={item.Ledger_id}>
-                    {item.Ledger_name}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <div className="d-flex align-items-center justify-content-between mb-3">
+                  <h6 className="mb-0 fw-bold text-primary">Debit (Nave)</h6>
+                  <span className="badge bg-primary-soft text-primary px-2 py-1" style={{ fontSize: "10px", backgroundColor: "#e7f1ff" }}>DEBIT SIDE</span>
+                </div>
 
-            <div className="col-md-3">
-              <select
-                className="form-select form-select-sm"
-                style={{ height: "29px", fontSize: "13px" }}
-                value={dropdown2}
-                onChange={(e) => setDropdown2(e.target.value)}
-                disabled={voucherType !== "contra"}
-              >
-                <option value="">Select </option>
-                <option value="A">Credit</option>
-                <option value="B">Debit</option>
-              </select>
+                <div className="row g-3">
+                  <div className="col-4">
+                    <label className="form-label mb-1 fw-semibold" style={{ fontSize: "12px" }}>
+                      Ledger No
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control form-control-sm border-secondary-subtle"
+                      value={drDropdown1}
+                      onChange={(e) => handleLedgerNoChange(e.target.value, "dr")}
+                      disabled={voucherType === "journal"}
+                      placeholder="No"
+                    />
+                  </div>
+                  <div className="col-8">
+                    <label className="form-label mb-1 fw-semibold" style={{ fontSize: "12px" }}>
+                      Ledger Name
+                    </label>
+                    <select
+                      className="form-select form-select-sm border-secondary-subtle"
+                      value={drLedger}
+                      onChange={(e) => handleLedgerNameChange(e.target.value, "dr")}
+                      disabled={voucherType === "journal"}
+                    >
+                      <option value="">Select Ledger</option>
+                      {ledgerList.map((item) => (
+                        <option key={item.Ledger_id} value={item.Ledger_id}>
+                          {item.Ledger_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="col-4">
+                    <label className="form-label mb-1 fw-semibold" style={{ fontSize: "12px" }}>
+                      Cust No
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm border-secondary-subtle"
+                      value={drCustomerNo}
+                      onChange={(e) => handleCustomerNoChange(e, "dr")}
+                      disabled={voucherType === "journal" || !isDrCustomerEnabled}
+                      placeholder="Cust #"
+                    />
+                  </div>
+                  <div className="col-8">
+                    <label className="form-label mb-1 fw-semibold" style={{ fontSize: "12px" }}>
+                      Customer Name
+                    </label>
+                    <select
+                      className="form-select form-select-sm border-secondary-subtle"
+                      value={drCustomer}
+                      onChange={(e) => handleCustomerChange(e, "dr")}
+                      disabled={voucherType === "journal" || !isDrCustomerEnabled}
+                    >
+                      <option value="">Select Customer</option>
+                      {customerList.map((c) => (
+                        <option key={c.Cust_id} value={c.Cust_id}>
+                          {c.Cust_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Customer textbox */}
-          <div className="row mt-2">
-            <div className="col-md-2">
-              <label
-                className="form-label"
-                style={{ fontSize: "14px", marginBottom: "2PX" }}
-              >
-                Customer No
-              </label>
-              <input
-                type="text"
-                className="form-control form-control-sm"
-                style={{ height: "29px", fontSize: "13px" }}
-                value={customerNo}
-                onChange={handleCustomerNoChange}
-                disabled={!isCustomerEnabled}
-              />
-            </div>
-
-            <div className="col-md-5">
-              <label
-                className="form-label"
-                style={{ fontSize: "14px" }}
-              ></label>
-              <select
-                className="form-select form-select-sm"
-                style={{ height: "29px", fontSize: "13px" }}
-                value={customer}
-                onChange={handleCustomerChange}
-                disabled={!isCustomerEnabled}
-              >
-                <option value="">Select Customer</option>
-                {customerList.map((c) => (
-                  <option key={c.Cust_id} value={c.Cust_id}>
-                    {c.Cust_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Amount + Add */}
-          <div className="row mt-2 align-items-end">
+          {/* Amount + Add Button */}
+          <div className="row mt-4 justify-content-center align-items-end">
             <div className="col-md-4">
-              <label
-                className="form-label"
-                style={{ fontSize: "14px", marginBottom: "2PX" }}
-              >
-                Amount
-              </label>
-              <input
-                type="number"
-                className="form-control form-control-sm"
-                style={{ height: "29px", fontSize: "13px" }}
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                onFocus={handleAmountFocus}
-                onBlur={handleAmountBlur}
-              />
+              <div className="form-group">
+                <label className="form-label mb-1 fw-bold text-dark" style={{ fontSize: "14px" }}>
+                  Transaction Amount
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text bg-white border-secondary-subtle">₹</span>
+                  <input
+                    type="number"
+                    className="form-control fw-bold border-secondary-subtle"
+                    style={{ height: "38px" }}
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    onFocus={handleAmountFocus}
+                    onBlur={handleAmountBlur}
+                  />
+                </div>
+              </div>
             </div>
             <div className="col-md-2">
               <button
                 type="button"
-                className="btn btn-success mt-2"
-                style={{ height: "29px", fontSize: "13px" }}
+                className="btn btn-dark w-100 shadow-sm fw-bold"
+                style={{ height: "38px", fontSize: "14px" }}
                 onClick={handleAdd}
               >
-                +
+                ADD ENTRY
               </button>
             </div>
           </div>

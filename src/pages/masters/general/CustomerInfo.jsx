@@ -199,6 +199,8 @@ const CustomerInfo = () => {
     // Fetch MaxCustNo on initial load (Refresh)
     fetchMaxNumber();
   }, []);
+  // console.log(districts);
+  
 
   /* ================= LOAD CUSTOMERS ================= */
   const fetchCustomers = async () => {
@@ -501,7 +503,7 @@ const CustomerInfo = () => {
                       <option value="0">Prefix</option>
                       {prefixes.map((p) => (
                         <option key={p.Prefix_id} value={p.Prefix_id}>
-                          {p.Prefix}
+                          {p.Prefix_EN}
                         </option>
                       ))}
                     </select>
@@ -629,7 +631,7 @@ const CustomerInfo = () => {
 
                   {states.map((s) => (
                     <option key={s.State_id} value={s.State_id}>
-                      {s.State}
+                      {s.State_EN}
                     </option>
                   ))}
                 </select>

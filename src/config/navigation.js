@@ -97,4 +97,9 @@ export const navigationConfig = [
     icon: "bi bi-box-arrow-right",
     path: "/counterclose",
   },
+  {
+    title: "Day Close",
+    icon: "bi bi-calendar-check",
+    path: "/dayclose",
+  },
 ];

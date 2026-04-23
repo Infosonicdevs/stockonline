@@ -16,12 +16,28 @@ const Layout = () => {
     navigate("/");
   };
 
-  const filteredNavigation = navigationConfig.filter((item) => {
-    if (roleId === "1") {
-      return true;
-    }
-    return !["Master", "Setting", "Utility"].includes(item.title);
-  });
+  const filteredNavigation = navigationConfig
+    .map((item) => {
+      if (roleId === "1") {
+        return item;
+      }
+
+      if (["Master", "Setting", "Utility", "Day Close"].includes(item.title)) {
+        return null;
+      }
+
+      if (item.title === "Transaction") {
+        return {
+          ...item,
+          submenu: item.submenu.filter((sub) =>
+            ["Voucher", "Stock Sales", "Sales Return"].includes(sub.title)
+          ),
+        };
+      }
+
+      return item;
+    })
+    .filter(Boolean);
 
   return (
     <div className="d-flex flex-column vh-100">

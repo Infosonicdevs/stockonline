@@ -241,7 +241,7 @@ function Taluka() {
 
         {!showTable ? (
           <form onSubmit={handleSubmit}>
-            <div className="row g-3 mb-3" style={{ fontSize: "14px" }}>
+            <div className="row0 g-3 mb-3" style={{ fontSize: "14px" }}>
               <div className="col me-4">
                 <label>State</label>
                 <span style={{ color: "red", marginLeft: "2px" }}>*</span>

@@ -1,6 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="shadow-none mt-0 container-fluid vh-100 overflow-hidden d-flex flex-column">
       {/* Page Title */}
@@ -11,9 +14,18 @@ const Dashboard = () => {
              backgroundColor: "#365b80",
           }}
         >
-          <div className="row align-items-center text-center">
-            <div className="col-12">
+          <div className="row align-items-center">
+            <div className="col-md-6 text-start">
               <h5 className="mb-0 fw-semibold">Home</h5>
+            </div>
+            <div className="col-md-6 text-end">
+              <button 
+                className="btn btn-warning fw-bold shadow-sm"
+                onClick={() => navigate("/stocksales")}
+              >
+                <i className="bi bi-cart-plus me-2"></i>
+                Sale
+              </button>
             </div>
           </div>
         </div>
