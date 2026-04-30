@@ -211,9 +211,9 @@ function LedgerEntry() {
     <div className="container my-2">
       <div
         className="bg-white p-4 rounded shadow mx-auto"
-     style={{
+        style={{
           maxWidth: showTable ? "100%" : "700px",
-    
+
         }}
       >
         <div

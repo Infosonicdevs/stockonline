@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import CommonTable from "../../../components/navigation/CommonTable";
 import {
   getAssignedCounters,
   saveAssignedCounter,
@@ -11,11 +10,107 @@ import {
 import { getCounters } from "../../../services/masters/counter";
 import { getEmployees } from "../../../services/masters/user";
 
+const EmployeeAssignmentRow = ({ emp, counterList, existingAssignment, onSave }) => {
+  const branchCounters = counterList.filter(c => c.Outlet_id === emp.Outlet_id);
+  
+  const [selectedCounter, setSelectedCounter] = useState("");
+  const [opnBal, setOpnBal] = useState(0);
+  const [status, setStatus] = useState("1");
+  const [closingBal, setClosingBal] = useState(0);
+
+  // Sync state with existing assignment when it changes
+  useEffect(() => {
+    if (existingAssignment) {
+      setSelectedCounter(existingAssignment.Counter_id || "");
+      setOpnBal(existingAssignment.Opn_bal || 0);
+      setStatus(existingAssignment.Status || "1");
+      setClosingBal(existingAssignment.Closing_bal || 0);
+    } else {
+      setSelectedCounter("");
+      setOpnBal(0);
+      setStatus("1");
+      setClosingBal(0);
+    }
+  }, [existingAssignment]);
+
+  const handleSave = () => {
+    if (!selectedCounter) {
+      toast.error("Please select a counter for " + emp.Emp_name);
+      return;
+    }
+    onSave({
+      Emp_id: emp.Emp_id,
+      Counter_id: selectedCounter,
+      Opn_bal: opnBal,
+      Status: status,
+      Closing_bal: closingBal,
+      existingAssignment
+    });
+  };
+
+  return (
+    <tr>
+      <td className="align-middle fw-medium">{emp.Emp_name}</td>
+      <td className="align-middle">
+        <select 
+          className="form-select form-select-sm" 
+          value={selectedCounter} 
+          onChange={e => setSelectedCounter(e.target.value)}
+        >
+          <option value="">Select Counter</option>
+          {branchCounters.map(c => (
+            <option key={c.Counter_Id} value={c.Counter_Id}>{c.Counter_name}</option>
+          ))}
+        </select>
+      </td>
+      <td className="align-middle">
+        <input 
+          type="number" 
+          className="form-control form-control-sm" 
+          value={opnBal} 
+          onChange={e => setOpnBal(e.target.value)} 
+          placeholder="Opening"
+        />
+      </td>
+      <td className="align-middle">
+        <select 
+          className="form-select form-select-sm" 
+          value={status} 
+          onChange={e => setStatus(e.target.value)}
+        >
+          <option value="1">Open</option>
+          <option value="0">Closed</option>
+        </select>
+      </td>
+      <td className="align-middle">
+        {status === "0" ? (
+          <input 
+            type="number" 
+            className="form-control form-control-sm" 
+            value={closingBal} 
+            onChange={e => setClosingBal(e.target.value)} 
+            placeholder="Closing"
+          />
+        ) : (
+          <span className="text-muted text-center d-block">-</span>
+        )}
+      </td>
+      <td className="align-middle text-center">
+        <button 
+          className={`btn btn-sm ${existingAssignment ? "btn-warning" : "btn-primary"}`} 
+          onClick={handleSave}
+        >
+          {existingAssignment ? "Update" : "Assign"}
+        </button>
+      </td>
+    </tr>
+  );
+};
+
 function AssignCounter() {
   const getInitialLoginDate = () => {
     const storedDate = localStorage.getItem("loginDate");
     if (storedDate) {
-      // Handle potential different formats or just return as is if it's already YYYY-MM-DD
       return storedDate.split("T")[0];
     }
     return new Date().toISOString().split("T")[0];
@@ -29,47 +124,10 @@ function AssignCounter() {
     });
   };
 
-  const [formData, setFormData] = useState({
-    Counter_id: "",
-    Emp_id: "",
-    Login_date: getInitialLoginDate(),
-    Status: "1",
-    Opn_bal: 0,
-    Closing_bal: 0,
-    Login_time: getCurrentTime(),
-    Log_out_date: "",
-    Log_out_time: "",
-  });
-
   const [dataList, setDataList] = useState([]);
   const [counterList, setCounterList] = useState([]);
   const [employeeList, setEmployeeList] = useState([]);
-  const [editIndex, setEditIndex] = useState(null);
-  const [showTable, setShowTable] = useState(false);
   const [searchName, setSearchName] = useState("");
-
-  const columns = [
-    {
-      label: "Sr.No",
-      render: (val, row, index) => index + 1,
-    },
-    {
-      label: "Counter",
-      accessor: "Counter_name",
-    },
-    {
-      label: "Employee",
-      accessor: "Emp_name",
-    },
-    {
-      label: "Balance",
-      accessor: "Opn_bal",
-    },
-    {
-      label: "Status",
-      render: (val, row) => (row.Is_closed === "1" ? "Counter Closed" : (row.Status === "1" ? "Open" : "Closed")),
-    },
-  ];
 
   useEffect(() => {
     fetchAssignedCounters();
@@ -108,62 +166,33 @@ function AssignCounter() {
     }
   };
 
-  const filteredList = dataList.filter((item) => {
-    const counterName = item.Counter_name || "";
-    const empName = item.Emp_name || "";
-    const search = searchName.toLowerCase();
-    return (
-      counterName.toLowerCase().includes(search) ||
-      empName.toLowerCase().includes(search)
-    );
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleClear = () => {
-    setFormData({ 
-      Counter_id: "",
-      Emp_id: "",
-      Login_date: getInitialLoginDate(),
-      Status: "1",
-      Opn_bal: 0,
-      Closing_bal: 0,
-      Login_time: getCurrentTime(),
-      Log_out_date: "",
-      Log_out_time: "",
-    });
-    setEditIndex(null);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.Counter_id) return toast.error("Select Counter");
-    if (!formData.Emp_id) return toast.error("Select Employee");
-
+  const handleSaveRow = async (rowData) => {
     try {
       const username = localStorage.getItem("username");
       const currentTime = getCurrentTime();
       const currentDate = new Date().toISOString().split("T")[0];
+      const initialDate = getInitialLoginDate();
 
       let bodyData = {
-        ...formData,
-        Counter_id: parseInt(formData.Counter_id),
-        Emp_id: parseInt(formData.Emp_id),
-        Opn_bal: parseFloat(formData.Opn_bal),
-        Closing_bal: parseFloat(formData.Closing_bal),
+        Counter_id: parseInt(rowData.Counter_id),
+        Emp_id: parseInt(rowData.Emp_id),
+        Opn_bal: parseFloat(rowData.Opn_bal) || 0,
+        Closing_bal: parseFloat(rowData.Closing_bal) || 0,
+        Status: rowData.Status,
         User_name: username,
       };
 
       let response;
-      if (editIndex !== null) {
-        bodyData.Id = dataList[editIndex].Id;
-
+      if (rowData.existingAssignment) {
+        bodyData.Id = rowData.existingAssignment.Id;
+        // Keep original login date/time when updating
+        bodyData.Login_date = rowData.existingAssignment.Login_date;
+        bodyData.Login_time = rowData.existingAssignment.Login_time;
+        bodyData.Log_out_date = rowData.existingAssignment.Log_out_date || "";
+        bodyData.Log_out_time = rowData.existingAssignment.Log_out_time || "";
+        
         // On status closed, only then update Logout Date and Time
-        if (formData.Status === "0") {
+        if (rowData.Status === "0") {
           bodyData.Log_out_date = currentDate;
           bodyData.Log_out_time = currentTime;
         }
@@ -171,8 +200,10 @@ function AssignCounter() {
         response = await updateAssignedCounter(bodyData);
       } else {
         // Save new assignment
-        bodyData.Login_date = getInitialLoginDate();
+        bodyData.Login_date = initialDate;
         bodyData.Login_time = currentTime;
+        bodyData.Log_out_date = "";
+        bodyData.Log_out_time = "";
         response = await saveAssignedCounter(bodyData);
       }
 
@@ -181,14 +212,12 @@ function AssignCounter() {
         response.status === 201 ||
         response.data === "Counter Assigned Successfully!" ||
         response.data === "Updated Successfully!" ||
-        response.data.message === "Updated Successfully!"
+        response.data?.message === "Updated Successfully!"
       ) {
-        toast.success(
-          editIndex !== null ? "Updated successfully" : "Assigned successfully",
-        );
-        handleClear();
+        toast.success(rowData.existingAssignment ? "Updated successfully" : "Assigned successfully");
         fetchAssignedCounters();
-        setShowTable(true);
+      } else {
+        toast.error("Failed to process request");
       }
     } catch (error) {
       console.error("Error saving/updating:", error);
@@ -196,181 +225,68 @@ function AssignCounter() {
     }
   };
 
-  const handleEdit = (item) => {
-    setFormData({
-      Counter_id: item.Counter_id,
-      Emp_id: item.Emp_id,
-      Login_date: item.Login_date ? item.Login_date.split("T")[0] : "",
-      Status: item.Status,
-      Opn_bal: item.Opn_bal,
-      Closing_bal: item.Closing_bal,
-      Login_time: item.Login_time,
-      Log_out_date: item.Log_out_date ? item.Log_out_date.split("T")[0] : "",
-      Log_out_time: item.Log_out_time || "",
-    });
-    const realIndex = dataList.findIndex((d) => d.Id === item.Id);
-    setEditIndex(realIndex);
-    setShowTable(false);
-  };
-
-  const handleDelete = async (item) => {
-    if (!window.confirm("Are you sure you want to delete this record?")) return;
-
-    try {
-      const bodyData = {
-        Id: item.Id,
-        User: localStorage.getItem("username"),
-      };
-      const response = await deleteAssignedCounter(bodyData);
-      if (
-        response.status === 200 ||
-        response.status === 201 ||
-        response.data === "Record Deleted!"
-      ) {
-        toast.success("Deleted successfully");
-        fetchAssignedCounters();
-      } else {
-        toast.error(response.data || "Failed to delete record");
-      }
-    } catch (error) {
-      console.error("Error deleting:", error);
-      toast.error(error.response?.data || "Failed to delete record");
-    }
-  };
+  const filteredEmployees = employeeList.filter((emp) => 
+    emp.Emp_name?.toLowerCase().includes(searchName.toLowerCase())
+  );
 
   return (
     <div className="container my-2" style={{ fontSize: "14px" }}>
-      <div
-        className="bg-white p-4 rounded shadow mx-auto"
-        style={{ maxWidth: "800px" }}
-      >
-        <div
-          className="text-white rounded mb-3 p-2 text-center"
-          style={{ backgroundColor: "#365b80" }}
-        >
+      <div className="bg-white p-4 rounded shadow mx-auto" style={{ maxWidth: "1000px" }}>
+        <div className="text-white rounded mb-3 p-2 text-center" style={{ backgroundColor: "#365b80" }}>
           <h5 className="mb-0 fw-semibold">Assign Counter</h5>
         </div>
 
-        {!showTable && (
-          <form onSubmit={handleSubmit}>
-            <div className="row g-3 mb-2">
-              <div className="col-md-6">
-                <label className="form-label">
-                  Counter <span className="text-danger">*</span>
-                </label>
-                <select
-                  name="Counter_id"
-                  className="form-select form-select-sm"
-                  value={formData.Counter_id}
-                  onChange={handleChange}
-                >
-                  <option value="">Select Counter</option>
-                  {counterList.map((c) => (
-                    <option key={c.Counter_Id} value={c.Counter_Id}>
-                      {c.Counter_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-md-6">
-                <label className="form-label">
-                  Employee <span className="text-danger">*</span>
-                </label>
-                <select
-                  name="Emp_id"
-                  className="form-select form-select-sm"
-                  value={formData.Emp_id}
-                  onChange={handleChange}
-                >
-                  <option value="">Select Employee</option>
-                  {employeeList.map((e) => (
-                    <option key={e.Emp_id} value={e.Emp_id}>
-                      {e.Emp_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+        <div className="mb-3">
+          <input 
+            type="text" 
+            className="form-control form-control-sm" 
+            placeholder="Search Employee..." 
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+          />
+        </div>
 
-            <div className="row g-3 mb-2">
-              <div className="col-md-6">
-                <label className="form-label">Opening Balance</label>
-                <input
-                  type="number"
-                  name="Opn_bal"
-                  className="form-control form-control-sm"
-                  value={formData.Opn_bal}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="col-md-6">
-                <label className="form-label">Status</label>
-                <select
-                  name="Status"
-                  className="form-select form-select-sm"
-                  value={formData.Status}
-                  onChange={handleChange}
-                >
-                  <option value="1">Open</option>
-                  <option value="0">Closed</option>
-                </select>
-              </div>
-            </div>
-
-            {editIndex !== null && formData.Status === "0" && (
-              <div className="row g-3 mb-2">
-                <div className="col-md-6">
-                  <label className="form-label">Closing Balance</label>
-                  <input
-                    type="number"
-                    name="Closing_bal"
-                    className="form-control form-control-sm"
-                    value={formData.Closing_bal}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="text-center mt-3 d-flex justify-content-center gap-2">
-              <button type="submit" className="button-save"   style={{ fontSize: "14px" }}>
-                {editIndex !== null ? "Update" : "Save"}
-              </button>
-              <button
-                type="button"
-                className="button-clear"
-                  style={{ fontSize: "14px" }}
-                onClick={handleClear}
-              >
-                Clear
-              </button>
-              <button
-                type="button"
-                className="button-list"
-                  style={{ fontSize: "14px" }}
-                onClick={() => setShowTable(true)}
-              >
-                Show List
-              </button>
-            </div>
-          </form>
-        )}
-
-        {showTable && (
-            <CommonTable
-              columns={columns}
-              data={filteredList}
-              onEdit={(item) => handleEdit(item)}
-              onDelete={(item) => handleDelete(item)}
-              searchValue={searchName}
-              onSearchChange={setSearchName}
-              onClose={() => {
-                setShowTable(false);
-                handleClear();
-                setSearchName("");
-              }}
-            />
-        )}
+        <div className="table-responsive" style={{ maxHeight: "60vh", overflowY: "auto" }}>
+          <table className="table table-bordered table-hover align-middle">
+            <thead className="table-light sticky-top">
+              <tr>
+                <th>Employee Name</th>
+                <th style={{ minWidth: "150px" }}>Counter</th>
+                <th style={{ width: "120px" }}>Opn Bal</th>
+                <th style={{ width: "100px" }}>Status</th>
+                <th style={{ width: "120px" }}>Cls Bal</th>
+                <th className="text-center" style={{ width: "80px" }}>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredEmployees.length > 0 ? (
+                filteredEmployees.map(emp => {
+                  // Find if employee has an active assignment (either open or closed but not permanently archived, depends on logic. Usually Is_closed !== '1')
+                  const existingAssignment = dataList.find(d => 
+                    d.Emp_id === emp.Emp_id && 
+                    (d.Status === "1" || d.Is_closed !== "1")
+                  );
+                  
+                  return (
+                    <EmployeeAssignmentRow 
+                      key={emp.Emp_id} 
+                      emp={emp} 
+                      counterList={counterList} 
+                      existingAssignment={existingAssignment} 
+                      onSave={handleSaveRow}
+                    />
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="6" className="text-center py-3 text-muted">
+                    No employees found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

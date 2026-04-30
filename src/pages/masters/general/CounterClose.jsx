@@ -52,9 +52,9 @@ function CounterClose() {
         getAssignedCounters()
       ]);
 
-      const counters = countersRes.data?.$values || countersRes.data;
-      const employees = employeesRes.data?.$values || employeesRes.data;
-      const assigned = assignedRes.data?.$values || assignedRes.data;
+      const counters = countersRes.data?.$values || countersRes.data || [];
+      const employees = employeesRes.data?.$values || employeesRes.data || [];
+      const assigned = assignedRes.data?.$values || assignedRes.data || [];
 
       setCounterList(Array.isArray(counters) ? counters : []);
       setEmployeeList(Array.isArray(employees) ? employees : []);
@@ -63,32 +63,42 @@ function CounterClose() {
       const loggedInEmpId = localStorage.getItem("Emp_id");
       
       if (loggedInEmpId && Array.isArray(assigned)) {
-        // 3. Find assigned counter for this employee
-        const userAssignment = assigned.find(a => String(a.Emp_id) === String(loggedInEmpId) && a.Status === "1");
-        
-        if (userAssignment) {
-          // Filter lists to only show the relevant assignment
-          const filteredCounter = counters.filter(c => String(c.Counter_Id) === String(userAssignment.Counter_id));
-          const filteredEmployee = employees.filter(e => String(e.Emp_id) === String(userAssignment.Emp_id));
-          
-          if (filteredCounter.length > 0) setCounterList(filteredCounter);
-          if (filteredEmployee.length > 0) setEmployeeList(filteredEmployee);
+        // 3. Filter assignments for this employee where Is_closed is null
+        const openAssignments = assigned.filter(a => 
+          String(a.Emp_id) === String(loggedInEmpId) && 
+          (a.Is_closed === null || a.Is_closed === undefined || a.Is_closed === "")
+        );
 
-          setFormData(prev => ({
-            ...prev,
-            Id: userAssignment.Id,
-            Counter_id: userAssignment.Counter_id,
-            Emp_id: userAssignment.Emp_id
-          }));
+        if (openAssignments.length > 0) {
+          // Filter counter list to only show counters from open assignments
+          const openCounterIds = openAssignments.map(a => String(a.Counter_id));
+          const filteredCounters = counters.filter(c => openCounterIds.includes(String(c.Counter_Id)));
+          setCounterList(filteredCounters);
+
+          // Filter employee list to just the logged in employee
+          const filteredEmployees = employees.filter(e => String(e.Emp_id) === String(loggedInEmpId));
+          if (filteredEmployees.length > 0) setEmployeeList(filteredEmployees);
+
+          // Pre-fill if there is exactly one open assignment
+          if (openAssignments.length === 1) {
+            const userAssignment = openAssignments[0];
+            setFormData(prev => ({
+              ...prev,
+              Id: userAssignment.Id,
+              Counter_id: userAssignment.Counter_id,
+              Emp_id: userAssignment.Emp_id
+            }));
+          } else {
+            // If multiple open counters, pre-fill employee but let user pick counter
+            setFormData(prev => ({ ...prev, Emp_id: loggedInEmpId }));
+          }
         } else {
-          // If no active assignment found, still pre-fill Emp_id and filter employee list if possible
-          const filteredEmployee = employees.filter(e => String(e.Emp_id) === String(loggedInEmpId));
-          if (filteredEmployee.length > 0) setEmployeeList(filteredEmployee);
+          // If no open assignment found, still pre-fill Emp_id and filter employee list
+          const filteredEmployees = employees.filter(e => String(e.Emp_id) === String(loggedInEmpId));
+          if (filteredEmployees.length > 0) setEmployeeList(filteredEmployees);
 
-          setFormData(prev => ({
-            ...prev,
-            Emp_id: loggedInEmpId
-          }));
+          setFormData(prev => ({ ...prev, Emp_id: loggedInEmpId }));
+          setCounterList([]); // No counters to close if none are open
         }
       }
     } catch (error) {

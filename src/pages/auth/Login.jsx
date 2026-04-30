@@ -7,6 +7,7 @@ import {
   getUserRole,
   loginUser,
   verifySystemUser,
+  checkCounterAssigned,
 } from "../../services/auth.service";
 import { BASE_URL } from "../../api/client";
 import { useNavigate } from "react-router-dom";
@@ -171,28 +172,78 @@ function Login() {
     }
 
     try {
+      let currentRole = role;
+      let currentEmpId = systemUserloginData.empId;
+
+      if (!currentRole) {
+        const response = await getUserRole({ 
+          username: userloginData.username, 
+          password: userloginData.password 
+        });
+        if (response.status === 200 && response?.data?.data?.length > 0) {
+          currentRole = response.data.data[0].Role;
+          currentEmpId = response.data.data[0].Emp_id;
+          setRole(currentRole);
+          setSystemUserloginData({ ...systemUserloginData, empId: currentEmpId });
+        } else {
+          toast.error("Invalid credentials or role not found");
+          return;
+        }
+      }
+
       // If Admin, call verifySystemUser first
-      if (role === "Admin") {
+      if (currentRole === "Admin") {
         if (!systemUserloginData.date) {
           toast.error("Please select a date");
           return;
         }
 
-        const verifyResult = await verifySystemUser({
-          ...systemUserloginData,
-          username: userloginData.username,
-          password: userloginData.password,
-        });
+        try {
+          const verifyResult = await verifySystemUser({
+            ...systemUserloginData,
+            username: userloginData.username,
+            password: userloginData.password,
+          });
 
-        if (verifyResult.status !== 200) {
-          toast.error("System user verification failed");
-          return;
+          if (verifyResult.status === 200) {
+            if (verifyResult.data?.success === false && verifyResult.data?.message === "Already logged in for this date!") {
+              // Proceed using the user selected date
+              setDate(systemUserloginData.date);
+              localStorage.setItem("loginDate", systemUserloginData.date);
+            } else if (verifyResult.data?.data) {
+              // Normal successful verification
+              const newLoginDate = verifyResult.data.data.split("T")[0];
+              setDate(newLoginDate);
+              localStorage.setItem("loginDate", newLoginDate);
+            } else {
+              setDate(systemUserloginData.date);
+              localStorage.setItem("loginDate", systemUserloginData.date);
+            }
+          } else {
+            toast.error("System user verification failed");
+            return;
+          }
+        } catch (verifyError) {
+          if (
+            verifyError.response &&
+            verifyError.response.data?.message === "Already logged in for this date!"
+          ) {
+            // Ignore this specific error and proceed
+            setDate(systemUserloginData.date);
+            localStorage.setItem("loginDate", systemUserloginData.date);
+          } else {
+            throw verifyError; // Rethrow to be caught by the outer catch
+          }
         }
-
-        // Update the login date in local storage and state if verify succeeds
-        const newLoginDate = verifyResult.data.data.split("T")[0];
-        setDate(newLoginDate);
-        localStorage.setItem("loginDate", newLoginDate);
+      } else {
+        // If not Admin, check if counter is assigned
+        const counterCheck = await checkCounterAssigned(currentEmpId);
+        if (counterCheck.status === 200 && counterCheck.data) {
+          if (counterCheck.data.IsLoggedIn === false) {
+            toast.error("Counter is not assigned. Cannot login.");
+            return;
+          }
+        }
       }
 
       // Proceed with normal login

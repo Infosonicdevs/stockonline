@@ -505,7 +505,7 @@ const Stocksale = () => {
         if (qty < 0) {
           updated.quantity = "0";
         } else {
-          const effectiveStock = Math.max(0, parseFloat(updated.currentStock) || 0);
+          const effectiveStock = Math.abs(parseFloat(updated.currentStock)) || 0;
           if (qty > effectiveStock) {
             toast.warning(
               `Quantity cannot exceed available stock (${effectiveStock})`
@@ -1301,7 +1301,7 @@ const Stocksale = () => {
                       </div>
                       <div className="d-flex flex-column gap-2" style={{ width: "160px" }}>
                         <button className="btn btn-light fw-bold py-2 shadow-sm" onClick={handleSaveSale} disabled={itemsList.length === 0 || isLoading}>
-                          <i className="bi bi-check2-circle me-1"></i> {isLoading ? "SAVING..." : (formData.saleId ? "UPDATE" : "SAVE & PRINT")}
+                          <i className="bi bi-check2-circle me-1"></i> {isLoading ? "SAVING..." : (formData.saleId ? "UPDATE" : "SAVE")}
                         </button>
                         <button className="btn btn-outline-light btn-sm fw-bold py-1" onClick={() => handlePrintReceipt()} disabled={itemsList.length === 0}>
                           <i className="bi bi-printer me-1"></i> PRINT

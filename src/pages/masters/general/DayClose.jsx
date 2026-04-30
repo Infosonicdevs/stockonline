@@ -83,10 +83,17 @@ function DayClose() {
   };
 
   const handleProcessDayClose = async (outletId) => {
-    if (!window.confirm("Are you sure you want to close the day for this outlet?")) return;
-    
+    const status = getStatusData(outletId);
+    const totalCounters = status.Counters?.length || 0;
+
+    let confirmMessage = "Are you sure you want to close the day for this outlet?";
+    if (totalCounters === 0) {
+      confirmMessage = "No login activity detected for today. Are you sure you want to close the day with zero transactions?";
+    }
+
+    if (!window.confirm(confirmMessage)) return;
+
     try {
-      const status = getStatusData(outletId);
       const payload = {
         Outlet_id: status.Outlet_id,
         Trans_date: status.Trans_date,
@@ -100,7 +107,7 @@ function DayClose() {
       };
 
       const response = await closeDay(payload);
-      
+
       if (response.status === 200 || response.data === "Saved Successfully!" || response.data?.message === "Saved Successfully!") {
         toast.success("Day closed successfully");
         setShowModal(false);
@@ -110,6 +117,53 @@ function DayClose() {
       console.error("Error closing day:", error);
       toast.error(error.response?.data || "Failed to process day close");
     }
+  };
+
+  const handleProcessAllReady = async () => {
+    const readyOutlets = outlets.filter(outlet => {
+      const status = getStatusData(outlet.Outlet_id);
+      const totalCounters = status.Counters?.length || 0;
+      const closedCounters = status.Counters?.filter(c => c.Log_out_date !== null).length || 0;
+      return totalCounters === closedCounters;
+    });
+
+    if (readyOutlets.length === 0) {
+      toast.info("No outlets are ready for Day Close");
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to process Day Close for ${readyOutlets.length} outlet(s)?`)) return;
+
+    setLoading(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const outlet of readyOutlets) {
+      try {
+        const status = getStatusData(outlet.Outlet_id);
+        const payload = {
+          Outlet_id: status.Outlet_id,
+          Trans_date: status.Trans_date,
+          LastTotal: status.LastTotal || 0,
+          TodayCR: status.TodayCR || 0,
+          TodayDR: status.TodayDR || 0,
+          TodayTotal: status.TodayTotal || 0,
+          FinalTotal: status.FinalTotal || 0,
+          TotalLogin: status.TotalLogin || 0,
+          TotalLogout: status.TotalLogout || 0
+        };
+        await closeDay(payload);
+        successCount++;
+      } catch (error) {
+        console.error(`Error closing day for outlet ${outlet.Outlet_id}:`, error);
+        failCount++;
+      }
+    }
+
+    setLoading(false);
+    if (successCount > 0) toast.success(`Successfully closed ${successCount} outlet(s)`);
+    if (failCount > 0) toast.error(`Failed to close ${failCount} outlet(s)`);
+    fetchInitialData();
   };
 
   const getStatusData = (outletId) => outletStatuses[outletId] || { Counters: [] };
@@ -158,7 +212,7 @@ function DayClose() {
                     const status = getStatusData(outlet.Outlet_id);
                     const totalCounters = status.Counters?.length || 0;
                     const closedCounters = status.Counters?.filter(c => c.Log_out_date !== null).length || 0;
-                    const allClosed = totalCounters > 0 && totalCounters === closedCounters;
+                    const allClosed = totalCounters === closedCounters;
 
                     return (
                       <tr key={outlet.Outlet_id}>
@@ -169,7 +223,9 @@ function DayClose() {
                         <td>{totalCounters}</td>
                         <td>{closedCounters}</td>
                         <td>
-                          {allClosed ? (
+                          {totalCounters === 0 ? (
+                            <span className="badge bg-secondary">No Activity</span>
+                          ) : allClosed ? (
                             <span className="badge bg-success">All Closed</span>
                           ) : (
                             <span className="badge bg-warning text-dark">
@@ -202,6 +258,28 @@ function DayClose() {
             </div>
           )}
         </div>
+        {(() => {
+          if (outlets.length === 0 || loading) return null;
+
+          const isAllReady = outlets.every(outlet => {
+            const status = getStatusData(outlet.Outlet_id);
+            const totalCounters = status.Counters?.length || 0;
+            const closedCounters = status.Counters?.filter(c => c.Log_out_date !== null).length || 0;
+            return totalCounters === closedCounters;
+          });
+
+          return isAllReady && (
+            <div className="card-footer bg-white border-top-0 text-center py-3">
+              <button 
+                className="btn btn-danger px-4 py-2 fw-bold shadow-sm"
+                onClick={handleProcessAllReady}
+              >
+                <i className="bi bi-calendar-check-fill me-2"></i>
+                  Day Close 
+              </button>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Counter Details Modal */}
@@ -267,7 +345,7 @@ function DayClose() {
                     const status = getStatusData(selectedOutlet.Outlet_id);
                     const totalCounters = status.Counters?.length || 0;
                     const closedCounters = status.Counters?.filter(c => c.Log_out_date !== null).length || 0;
-                    const allClosed = totalCounters > 0 && totalCounters === closedCounters;
+                    const allClosed = totalCounters === closedCounters;
                     
                     return allClosed && (
                       <button 

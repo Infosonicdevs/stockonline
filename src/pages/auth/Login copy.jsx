@@ -14,7 +14,6 @@ import { toast } from "react-toastify";
 
 function Login() {
   const [role, setRole] = useState("");
-  const [showAdminModal, setShowAdminModal] = useState(false);
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [userloginData, setUserLoginData] = useState({
     username: "",
@@ -103,10 +102,11 @@ function Login() {
         const loginDate = response.data.data[0]?.Login_date;
 
         if (loginDate) {
-          setDate(loginDate.split("T")[0]); // No toISOString() needed
           const formattedloginDate = loginDate.split("T")[0];
+          setDate(formattedloginDate); // No toISOString() needed
           console.log("System date from admin:", formattedloginDate);
           localStorage.setItem("loginDate", formattedloginDate);
+          setSystemUserloginData((prev) => ({ ...prev, date: formattedloginDate }));
         }
       }
     } catch (error) {
@@ -124,6 +124,7 @@ function Login() {
       const fallbackDate = new Date().toISOString().split("T")[0];
       setDate(fallbackDate);
       localStorage.setItem("loginDate", fallbackDate);
+      setSystemUserloginData((prev) => ({ ...prev, date: fallbackDate }));
     }
   };
 
@@ -160,8 +161,6 @@ function Login() {
     }
   };
 
-  const openAdminModal = () => setShowAdminModal(true);
-  const closeAdminModal = () => setShowAdminModal(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -172,6 +171,31 @@ function Login() {
     }
 
     try {
+      // If Admin, call verifySystemUser first
+      if (role === "Admin") {
+        if (!systemUserloginData.date) {
+          toast.error("Please select a date");
+          return;
+        }
+
+        const verifyResult = await verifySystemUser({
+          ...systemUserloginData,
+          username: userloginData.username,
+          password: userloginData.password,
+        });
+
+        if (verifyResult.status !== 200) {
+          toast.error("System user verification failed");
+          return;
+        }
+
+        // Update the login date in local storage and state if verify succeeds
+        const newLoginDate = verifyResult.data.data.split("T")[0];
+        setDate(newLoginDate);
+        localStorage.setItem("loginDate", newLoginDate);
+      }
+
+      // Proceed with normal login
       const result = await loginUser(userloginData);
 
       if (result.status === 200) {
@@ -201,32 +225,14 @@ function Login() {
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        toast.error("Invalid credentials");
+        toast.error(error.response?.data?.message || "Invalid credentials");
       } else {
         toast.error("Something went wrong");
+        console.error(error);
       }
     }
   };
 
-
-  const verifySystemUserLogin = async () => {
-    try {
-      const result = await verifySystemUser(systemUserloginData);
-      console.log(result);
-      if (result.status === 200) {
-        setDate(result.data.data);
-        const loginDate = result.data.data.split("T")[0];
-        localStorage.setItem("loginDate", loginDate);
-        closeAdminModal();
-      }
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || 
-        error.message || 
-        "Something went wrong"
-      );
-    }
-  };
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -346,21 +352,27 @@ function Login() {
                 />
               </div>
 
-              {/* Date + Admin Icon in One Line */}
-              <div className="mb-2 d-flex align-items-center gap-2">
-                {/* Date Label */}
-                <label className="form-label fw-medium small mb-0">
-                  Date - {new Date(date).toLocaleDateString("en-GB")}
-                </label>
-
-                {/* Calendar / Admin Icon */}
-                {isAdminAndMainBranch && (
-                  <i
-                    className="bi bi-calendar3 text-secondary fs-5"
-                    onClick={openAdminModal}
-                    style={{ cursor: "pointer" }}
-                    title="Admin Panel"
-                  ></i>
+              {/* Date Selection */}
+              <div className="mb-2">
+                {role === "Admin" ? (
+                  <>
+                    <label className="form-label fw-medium small">Select Date</label>
+                    <input
+                      id="date"
+                      type="date"
+                      value={systemUserloginData.date}
+                      onChange={handleSystemUserChange}
+                      required
+                      className="form-control form-control-sm"
+                      style={{ width: "270px" }}
+                    />
+                  </>
+                ) : (
+                  <div className="d-flex align-items-center gap-2">
+                    <label className="form-label fw-medium small mb-0">
+                      Date - {new Date(date).toLocaleDateString("en-GB")}
+                    </label>
+                  </div>
                 )}
               </div>
 
@@ -374,86 +386,6 @@ function Login() {
           </div>
         </div>
 
-        {/* Admin Modal */}
-        {showAdminModal && (
-          <div
-            className="modal d-block"
-            tabIndex="-1"
-            style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-          >
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content p-2">
-                <h5 className="text-center mb-2 fw-semibold">Admin Login</h5>
-
-                <div className="mb-2">
-                  <label
-                    className="form-label"
-                    style={{ fontSize: "14px", marginBottom: "0.25rem" }}
-                  >
-                    Username
-                  </label>
-                  <input
-                    id="username"
-                    value={systemUserloginData.username}
-                    onChange={handleSystemUserChange}
-                    type="text"
-                    placeholder="Username"
-                    className="form-control form-control-sm"
-                  />
-                </div>
-
-                <div className="mb-2">
-                  <label
-                    className="form-label"
-                    style={{ fontSize: "14px", marginBottom: "0.25rem" }}
-                  >
-                    Password
-                  </label>
-                  <input
-                    value={systemUserloginData.password}
-                    id="password"
-                    onChange={handleSystemUserChange}
-                    type="password"
-                    placeholder="Password"
-                    className="form-control form-control-sm"
-                  />
-                </div>
-
-                <div className="mb-2">
-                  <label
-                    className="form-label"
-                    style={{ fontSize: "14px", marginBottom: "0.25rem" }}
-                  >
-                    Date
-                  </label>
-                  <input
-                    id="date"
-                    type="date"
-                    value={systemUserloginData.date}
-                    onChange={handleSystemUserChange}
-                    className="form-control form-control-sm"
-                  />
-                </div>
-
-                <div className="d-flex justify-content-center gap-2">
-                  <button
-                    onClick={closeAdminModal}
-                    className="btn btn-sm btn-secondary"
-                  >
-                    Cancel
-                  </button>
-
-                  <button
-                    onClick={verifySystemUserLogin}
-                    className="btn btn-sm btn-success"
-                  >
-                    Login
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

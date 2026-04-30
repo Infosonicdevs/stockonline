@@ -9,6 +9,9 @@ export const navigationConfig = [
     icon: "bi bi-database",
     submenu: [
       { title: "Customer Info", path: "/customer-info" },
+      { title: "Customer List", path: "/customer-list" },
+      { title: "Branches", path: "/branches" },
+      { title: "Agents", path: "/agents" },
       { title: "Employee Info", path: "/user-info" },
       { title: "Supplier Info", path: "/supplierinfo" },
       {
@@ -42,6 +45,15 @@ export const navigationConfig = [
       { title: "Stock Sales", path: "/stocksales" },
       { title: "Purchase Return", path: "/purchasereturn" },
       { title: "Sales Return", path: "/salesreturn" },
+    ],
+  },
+  {
+    title: "Reports",
+    icon: "bi bi-file-earmark-bar-graph",
+    submenu: [
+      { title: "Daybook", path: "/daybook" },
+      { title: "Stockbook", path: "/stockbook" },
+      { title: "Ledger", path: "/ledger-report" },
     ],
   },
   {

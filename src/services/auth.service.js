@@ -41,3 +41,7 @@ export const verifySystemUser = (user) => {
     Emp_id: user.empId,
   });
 };
+
+// Check if counter is assigned for login
+export const checkCounterAssigned = (empId) =>
+  apiClient.get(`/api/AssignCounter/CheckLogin?Emp_id=${empId}`);
