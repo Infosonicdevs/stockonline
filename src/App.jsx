@@ -50,6 +50,7 @@ import DayClose from "./pages/masters/general/DayClose";
 import Daybook from "./pages/reports/Daybook";
 import Stockbook from "./pages/reports/Stockbook";
 import LedgerReport from "./pages/reports/Ledger";
+import StockDistributionReport from "./pages/reports/StockDistribution";
 
 function App() {
   return (
@@ -106,6 +107,7 @@ function App() {
             <Route path="/daybook" element={<Daybook />} />
             <Route path="/stockbook" element={<Stockbook />} />
             <Route path="/ledger-report" element={<LedgerReport />} />
+            <Route path="/stock-distribution-report" element={<StockDistributionReport />} />
           </Route>
         </Routes>
       </Router>

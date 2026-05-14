@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 
 function Login() {
   const [role, setRole] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState("");
   const [userloginData, setUserLoginData] = useState({
     username: "",
     password: "",
@@ -100,7 +100,12 @@ function Login() {
       const response = await getLatestSystemDateSelectedByAdmin();
 
       if (response.status === 200 && response.data.success) {
-        const loginDate = response.data.data[0]?.Login_date;
+        let loginDate;
+        if (typeof response.data.data === "string") {
+          loginDate = response.data.data;
+        } else if (Array.isArray(response.data.data)) {
+          loginDate = response.data.data[0]?.Login_date;
+        }
 
         if (loginDate) {
           const formattedloginDate = loginDate.split("T")[0];
@@ -120,12 +125,6 @@ function Login() {
           error,
         );
       }
-      
-      // Fallback to current date if API fails or no date found
-      const fallbackDate = new Date().toISOString().split("T")[0];
-      setDate(fallbackDate);
-      localStorage.setItem("loginDate", fallbackDate);
-      setSystemUserloginData((prev) => ({ ...prev, date: fallbackDate }));
     }
   };
 
@@ -421,7 +420,7 @@ function Login() {
                 ) : (
                   <div className="d-flex align-items-center gap-2">
                     <label className="form-label fw-medium small mb-0">
-                      Date - {new Date(date).toLocaleDateString("en-GB")}
+                      Date - {date ? new Date(date).toLocaleDateString("en-GB") : ""}
                     </label>
                   </div>
                 )}

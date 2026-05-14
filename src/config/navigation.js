@@ -51,6 +51,7 @@ export const navigationConfig = [
       { title: "Daybook", path: "/daybook" },
       { title: "Stockbook", path: "/stockbook" },
       { title: "Ledger", path: "/ledger-report" },
+      { title: "Stock Distribution", path: "/stock-distribution-report" },
     ],
   },
   {
