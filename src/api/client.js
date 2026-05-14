@@ -4,7 +4,9 @@ const apiURL = import.meta.env.VITE_APIURL;
 
 // Normalize BASE_URL by stripping trailing /api or /api/
 // This ensures that service calls starting with /api don't cause duplication
-export const BASE_URL = apiURL.replace(/\/api\/?$/, "").replace(/\/$/, "");
+//export const BASE_URL = apiURL.replace(/\/api\/?$/, "").replace(/\/$/, "");
+
+export const BASE_URL = apiURL;
 
 const apiClient = axios.create({
   baseURL: BASE_URL,

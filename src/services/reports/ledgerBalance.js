@@ -23,3 +23,7 @@ export const updateLedgerBalance = (data) => {
 export const deleteLedgerBalance = (data) => {
   return apiClient.post(`/api/DelLedgerBalance`, data);
 };
+
+export const getLedgerReport = (ledgerId, fromDate, toDate) => {
+  return apiClient.get(`/api/ledger/report?Ledger_id=${ledgerId}&FromDate=${fromDate}&ToDate=${toDate}`);
+};

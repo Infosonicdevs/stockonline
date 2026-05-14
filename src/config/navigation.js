@@ -9,9 +9,6 @@ export const navigationConfig = [
     icon: "bi bi-database",
     submenu: [
       { title: "Customer Info", path: "/customer-info" },
-      { title: "Customer List", path: "/customer-list" },
-      { title: "Branches", path: "/branches" },
-      { title: "Agents", path: "/agents" },
       { title: "Employee Info", path: "/user-info" },
       { title: "Supplier Info", path: "/supplierinfo" },
       {

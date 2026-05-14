@@ -232,11 +232,7 @@ const CustomerInfo = () => {
       return;
     }
 
-    // 4. Card Number Validation
-    if (!formData.cardNo || formData.cardNo === "0") {
-      toast.error("Card Number is required!");
-      return;
-    }
+
 
     if (!formData.mobileNo || formData.mobileNo.trim() === "") {
       toast.error("Mobile No is required!");
@@ -477,7 +473,6 @@ const CustomerInfo = () => {
                   id="cardNo"
                   value={formData.cardNo}
                   onChange={handleChange}
-                  required
                   className="form-control form-control-sm"
                   style={{ width: "180px" }}
                 />
@@ -503,7 +498,7 @@ const CustomerInfo = () => {
                       <option value="0">Prefix</option>
                       {prefixes.map((p) => (
                         <option key={p.Prefix_id} value={p.Prefix_id}>
-                          {p.Prefix_EN}
+                          {p.Prefix}
                         </option>
                       ))}
                     </select>
@@ -631,7 +626,7 @@ const CustomerInfo = () => {
 
                   {states.map((s) => (
                     <option key={s.State_id} value={s.State_id}>
-                      {s.State_EN}
+                      {s.State}
                     </option>
                   ))}
                 </select>

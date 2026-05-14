@@ -9,6 +9,7 @@ import {
     updateStockBalance,
     deleteStockBalance,
 } from "../../services/reports/stockBalance";
+import { getOutlets } from "../../services/masters/outlet";
 
 function StockEntry() {
     const username = localStorage.getItem("username") || "UnknownUser";
@@ -17,9 +18,12 @@ function StockEntry() {
         stockNo: "",
         stockName: "",
         quantity: "",
+        amount: "",
     });
 
     const [stockList, setStockList] = useState([]);
+    const [outlets, setOutlets] = useState([]);
+    const [selectedOutlet, setSelectedOutlet] = useState("");
     const [data, setData] = useState([]);
     const [showTable, setShowTable] = useState(false);
     const [editIndex, setEditIndex] = useState(null);
@@ -41,28 +45,52 @@ function StockEntry() {
             label: "Quantity",
             render: (val, row) => row.Quantity,
         },
+        {
+            label: "Amount",
+            render: (val, row) => row.Amount,
+        },
     ];
 
-    const fetchStock = async () => {
+    const fetchInitialData = async () => {
         try {
             const stockRes = await getStockDetails();
             setStockList(
                 stockRes.data.map((s) => ({ Stock_id: s.Stock_id, Stock_name: s.Stock_name }))
             );
 
-            const balanceRes = await getStockBalance();
-            setData(balanceRes.data);
-
-
+            const outletRes = await getOutlets();
+            setOutlets(outletRes.data);
+            if (outletRes.data && outletRes.data.length > 0) {
+                const initialOutlet = outletRes.data[0].Outlet_id;
+                setSelectedOutlet(initialOutlet);
+                fetchStockBalance(initialOutlet);
+            }
         } catch (err) {
             toast.error("API not connected");
             console.error(err);
         }
     };
 
+    const fetchStockBalance = async (outletId) => {
+        if (!outletId) return;
+        try {
+            const balanceRes = await getStockBalance(outletId);
+            setData(balanceRes.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     useEffect(() => {
-        fetchStock();
+        fetchInitialData();
     }, []);
+
+    const handleOutletChange = (e) => {
+        const newOutletId = e.target.value;
+        setSelectedOutlet(newOutletId);
+        fetchStockBalance(newOutletId);
+        handleClear();
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -87,36 +115,44 @@ function StockEntry() {
     };
 
     const handleClear = () => {
-        setFormData({ stockNo: "", stockName: "", quantity: "" });
+        setFormData({ stockNo: "", stockName: "", quantity: "", amount: "" });
         setEditIndex(null);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (!selectedOutlet) return toast.error("Please select an Outlet");
         if (!formData.stockNo) return toast.error("Please enter Stock No");
         if (!formData.quantity) return toast.error("Please enter Quantity");
-
-        const payload = {
-            Bal_id: editIndex !== null ? data[editIndex].Bal_id : 0,
-            Stock_id: Number(formData.stockNo),
-            Quantity: Number(formData.quantity),
-            Amount: Number(formData.quantity),
-            Created_By: username,
-            Modified_By: username,
-        };
+        if (!formData.amount) return toast.error("Please enter Amount");
 
         try {
             if (editIndex !== null) {
+                const payload = {
+                    Bal_id: data[editIndex].Bal_id,
+                    Stock_id: Number(formData.stockNo),
+                    Quantity: Number(formData.quantity),
+                    Amount: Number(formData.amount),
+                    Outlet_id: Number(selectedOutlet),
+                    Modified_By: username,
+                };
                 await updateStockBalance(payload);
                 toast.success("Record updated successfully");
             } else {
+                const payload = {
+                    Stock_id: Number(formData.stockNo),
+                    Quantity: Number(formData.quantity),
+                    Amount: Number(formData.amount),
+                    Outlet_id: Number(selectedOutlet),
+                    Created_By: username,
+                };
                 await addStockBalance(payload);
                 toast.success("Record saved successfully");
             }
 
             handleClear();
-            fetchStock();
+            fetchStockBalance(selectedOutlet);
         } catch (err) {
             toast.error(err.response?.data || "API error");
             console.error(err);
@@ -131,6 +167,7 @@ function StockEntry() {
             stockNo: item.Stock_id,
             stockName: stock ? stock.Stock_name : "",
             quantity: item.Quantity,
+            amount: item.Amount || "",
         });
 
         setEditIndex(index);
@@ -144,7 +181,7 @@ function StockEntry() {
             const payload = { Bal_id: data[index].Bal_id, Modified_By: username };
             await deleteStockBalance(payload);
             toast.success("Record deleted successfully");
-            fetchStock();
+            fetchStockBalance(selectedOutlet);
         } catch (err) {
             toast.error(err.response?.data || "API error");
             console.error(err);
@@ -167,6 +204,25 @@ function StockEntry() {
                     style={{ backgroundColor: "#365b80" }}
                 >
                     <h5 className="mb-0 fw-semibold">Stock Balance</h5>
+                </div>
+
+                {/* Outlet Dropdown - Visible on both Form and Table views */}
+                <div className="row g-2 mt-3 mb-3 justify-content-center">
+                    <div className="col-md-4">
+                        <label className="form-label" style={{ marginBottom: "2px" }}>Select Outlet</label>
+                        <select
+                            className="form-select form-select-sm"
+                            value={selectedOutlet}
+                            onChange={handleOutletChange}
+                        >
+                            <option value="">Select Outlet</option>
+                            {outlets.map((o) => (
+                                <option key={o.Outlet_id} value={o.Outlet_id}>
+                                    {o.Outlet_name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 {!showTable ? (
@@ -217,6 +273,18 @@ function StockEntry() {
                                 />
                             </div>
 
+                            {/* Amount */}
+                            <div className="col-md-2" style={{ marginLeft: "25px" }}>
+                                <label className="form-label" style={{ marginBottom: "2px" }}>Amount</label>
+                                <input
+                                    type="number"
+                                    name="amount"
+                                    className="form-control form-control-sm"
+                                    value={formData.amount}
+                                    onChange={handleChange}
+                                />
+                            </div>
+
                         </div>
 
                         {/* Buttons */}
@@ -239,7 +307,7 @@ function StockEntry() {
                                 className="button-list"
                                 style={{ fontSize: "14px" }}
                                 onClick={() => {
-                                    fetchStock();
+                                    fetchStockBalance(selectedOutlet);
                                     setShowTable(true);
                                 }}
                             >

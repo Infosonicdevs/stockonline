@@ -224,7 +224,7 @@ function YearSetting() {
     if (editIndex !== null) {
       fields = ["newStart", "newEnd", "selection", "password"];
     } else {
-      fields = ["currentStart", "currentEnd", "selection"];
+      fields = ["currentStart", "currentEnd", "selection", "password"];
     }
 
     const { isValid } = validateRequiredFields(formData, fields);
@@ -371,20 +371,18 @@ function YearSetting() {
                 </select>
               </div>
 
-              {formData.selection === "new" && (
-                <div className="col-md-6">
-                  <label className="form-label">Password</label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="form-control"
-                    style={{ width: "100%" }}
-                    required
-                  />
-                </div>
-              )}
+              <div className="col-md-6">
+                <label className="form-label">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="form-control"
+                  style={{ width: "100%" }}
+                  required
+                />
+              </div>
             </div>
 
             {/* Buttons */}

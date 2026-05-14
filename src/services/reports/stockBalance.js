@@ -6,7 +6,7 @@ import apiClient from "../../api/client";
 export const getStockDetails = () => apiClient.get(`/api/StockDetail`);
 
 // Fetch stock balances
-export const getStockBalance = () => apiClient.get(`/api/StockBalance`);
+export const getStockBalance = (outletId = 1) => apiClient.get(`/api/StockBalance?Outlet_id=${outletId}`);
 
 // Add a new stock balance
 export const addStockBalance = (payload) =>

@@ -158,7 +158,7 @@ const BarcodeGenerator = () => {
           <div className="mt-5 border rounded p-4 text-center bg-light preview-area overflow-auto">
             <h6 className="fw-bold mb-3">Preview</h6>
             <div className="preview-barcode-container d-flex justify-content-center">
-              <div className="preview-barcode-item bg-white shadow-sm border" style={{ width: "101.6mm", height: "38mm", overflow: "hidden" }}>
+              <div className="preview-barcode-item bg-white shadow-sm border" style={{ width: "35mm", height: "35mm", overflow: "hidden" }}>
                 <LabelTemplate 
                   itemNo={formData.itemNo} 
                   barcode={formData.barcode} 
@@ -195,9 +195,9 @@ const BarcodeGenerator = () => {
 // Extracted label template for consistency between Preview and Print
 const LabelTemplate = ({ itemNo, barcode, itemName, mrp, discount, rate }) => (
   <div className="barcode-label-container" style={{
-    width: "101.6mm",
-    height: "38mm",
-    padding: "3mm 5mm",
+    width: "35mm",
+    height: "35mm",
+    padding: "2mm",
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -206,36 +206,28 @@ const LabelTemplate = ({ itemNo, barcode, itemName, mrp, discount, rate }) => (
     color: "#000",
     backgroundColor: "#fff"
   }}>
-    <div className="text-center" style={{ lineHeight: "1.1", marginBottom: "auto" }}>
-      <div style={{ fontWeight: "900", fontSize: "15px", letterSpacing: "0.5px" }}>The Royal Touch</div>
-      <div style={{ fontWeight: "bold", fontSize: "12px", marginTop: "1px" }}>Being Handsome</div>
+    <div className="text-center" style={{ lineHeight: "1", marginBottom: "auto" }}>
+      <div style={{ fontWeight: "900", fontSize: "10px" }}>The Royal Touch</div>
+      <div style={{ fontWeight: "bold", fontSize: "8px" }}>Being Handsome</div>
     </div>
     
-    <div className="text-center d-flex justify-content-center flex-column align-items-center" style={{ margin: "3px 0", flexGrow: 1 }}>
-      <Barcode value={barcode} width={1.8} height={28} displayValue={false} margin={0} />
-      <div style={{ fontSize: "13px", fontFamily: "monospace", marginTop: "3px", letterSpacing: "2px", fontWeight: "bold" }}>
+    <div className="text-center d-flex justify-content-center flex-column align-items-center" style={{ margin: "2px 0", flexGrow: 1 }}>
+      <Barcode value={barcode} width={1} height={20} displayValue={false} margin={0} />
+      <div style={{ fontSize: "9px", fontFamily: "monospace", marginTop: "1px", fontWeight: "bold" }}>
         *{barcode}*
       </div>
     </div>
 
-    <div style={{ fontSize: "11px", lineHeight: "1.2", width: "100%", marginTop: "auto" }}>
-      <div style={{ display: "flex", fontWeight: "bold", marginBottom: "4px", alignItems: "baseline" }}>
-        <span style={{ marginRight: "10px", fontSize: "12px" }}>{itemNo}</span>
-        <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1, textAlign: "left", fontSize: "12px" }}>
+    <div style={{ fontSize: "8px", lineHeight: "1.1", width: "100%", marginTop: "auto" }}>
+      <div style={{ display: "flex", fontWeight: "bold", marginBottom: "2px", alignItems: "baseline" }}>
+        <span style={{ marginRight: "4px", fontSize: "8px" }}>{itemNo}</span>
+        <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1, textAlign: "left", fontSize: "8px" }}>
           {itemName}
         </span>
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontSize: "10px", fontWeight: "bold" }}>
-        <span>
-          MRP: {parseFloat(mrp || 0).toFixed(2)} 
-          <span style={{ fontSize: "8px", fontWeight: "normal", marginLeft: "2px" }}>(Incl. taxes)</span>
-        </span>
-        {(parseFloat(discount) > 0) && (
-          <span>Disc: {parseFloat(discount).toFixed(2)}</span>
-        )}
-        <span style={{ fontSize: "13px" }}>
-          Rate: {parseFloat(rate || 0).toFixed(2)}
-        </span>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontSize: "8px", fontWeight: "bold" }}>
+        <span>MRP: {parseFloat(mrp || 0).toFixed(2)}</span>
+        <span style={{ fontSize: "8px" }}>R: {parseFloat(rate || 0).toFixed(2)}</span>
       </div>
     </div>
   </div>

@@ -364,11 +364,11 @@ function Usersetting() {
             <CommonTable
               columns={columns}
               data={filteredUsers}
-              onEdit={(index) =>
-                handleEdit(filteredUsers[index].User_id)
+              onEdit={(row) =>
+                handleEdit(row.User_id)
               }
-              onDelete={(index) =>
-                handleDelete(filteredUsers[index].User_id)
+              onDelete={(row) =>
+                handleDelete(row.User_id)
               }
               searchValue={searchName}
               onSearchChange={setSearchName}

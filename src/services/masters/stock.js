@@ -2,7 +2,7 @@ import apiClient from "../../api/client";
 
 
 // Get all stock balances
-export const getStockBalances = () => apiClient.get(`/api/StockBalance`);
+export const getStockBalances = (outletId = 1) => apiClient.get(`/api/StockBalance?Outlet_id=${outletId}`);
 
 // Get single stock balance by Bal_id
 export const getStockBalanceById = (id) => apiClient.get(`/api/StockBalance?Bal_id=${id}`);

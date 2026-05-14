@@ -17,9 +17,9 @@
 }
 
 @media print {
-  /* Setup exact label page size: 101.6mm x 38mm */
+  /* Setup exact label page size: 35mm x 35mm */
   @page {
-    size: 101.6mm 38mm;
+    size: 35mm 35mm;
     margin: 0;
   }
 
@@ -30,8 +30,8 @@
   html, body {
     margin: 0 !important;
     padding: 0 !important;
-    width: 101.6mm;
-    height: 38mm;
+    width: 35mm;
+    height: 35mm;
     background: transparent !important;
   }
 
@@ -52,8 +52,8 @@
 
   /* Each barcode acts as a distinct page/label break */
   .print-barcode-page {
-    width: 101.6mm;
-    height: 38mm;
+    width: 35mm;
+    height: 35mm;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -7,9 +7,6 @@ import {
 } from "react-router-dom";
 import Login from "./pages/auth/Login";
 import CustomerInfo from "./pages/masters/general/CustomerInfo";
-import CustomerList from "./pages/masters/general/CustomerList";
-import Branches from "./pages/masters/general/Branches";
-import Agents from "./pages/masters/general/Agents";
 import Layout from "./shared/Layout";
 import { ToastContainer } from "react-toastify";
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -68,9 +65,6 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/customer-info" element={<CustomerInfo />} />
-            <Route path="/customer-list" element={<CustomerList />} />
-            <Route path="/branches" element={<Branches />} />
-            <Route path="/agents" element={<Agents />} />
             <Route path="/ledger" element={<Ledger />} />
             <Route path="/balance" element={<LedgerBalance />} />
             <Route path="/ledger-group" element={<LedgerGroup />} />
