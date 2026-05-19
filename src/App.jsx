@@ -50,8 +50,11 @@ import DayClose from "./pages/masters/general/DayClose";
 import Daybook from "./pages/reports/Daybook";
 import Stockbook from "./pages/reports/Stockbook";
 import LedgerReport from "./pages/reports/Ledger";
-import StockDistributionReport from "./pages/reports/StockDistribution";
-
+import StockDistributionReport from "./pages/reports/StockDistributionReport";
+import PurchaseRegister from "./pages/reports/PurchaseRegister";
+import SaleRegister from "./pages/reports/SaleRegister";
+import Trialbalance from "./pages/reports/Trialbalance";
+import Vyaparipatrak from "./pages/reports/Vyaparipatrak";
 function App() {
   return (
     <>
@@ -85,9 +88,7 @@ function App() {
             <Route path="/stockbalance" element={<StockEntry />} />
             <Route path="/outlet" element={<OutletCenterForm />} />
             <Route path="/supplierinfo" element={<SupplierInfo />} />
-            <Route path="/voucher" element={<VoucherForm />} />
             <Route path="/unit" element={<Unit />} />
-            <Route path="/voucher" element={<VoucherForm />} />
             <Route path="/stockgroup" element={<StockGroup />} />
             <Route path="/stocksubgroup" element={<StockSubGroup />} />
             <Route path="/stockdetails" element={<StockDetails />} />
@@ -108,6 +109,11 @@ function App() {
             <Route path="/stockbook" element={<Stockbook />} />
             <Route path="/ledger-report" element={<LedgerReport />} />
             <Route path="/stock-distribution-report" element={<StockDistributionReport />} />
+            <Route path="/purchase-register" element={<PurchaseRegister />} />
+            <Route path="/sale-register" element={<SaleRegister />} />
+            <Route path="/trialbalance" element={<Trialbalance />} />
+            <Route path="/vyaparipatrak" element={<Vyaparipatrak />} />
+            <Route path="/voucher" element={<VoucherForm />} />
           </Route>
         </Routes>
       </Router>

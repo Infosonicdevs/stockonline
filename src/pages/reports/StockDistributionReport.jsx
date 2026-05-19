@@ -3,7 +3,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getStockDistributionReport } from "../../services/reports/stockDistribution";
 
-function StockDistribution() {
+function StockDistributionReport() {
   const [formData, setFormData] = useState({
     fromDate: new Date().toISOString().split("T")[0],
     toDate: new Date().toISOString().split("T")[0],
@@ -167,4 +167,4 @@ function StockDistribution() {
   );
 }
 
-export default StockDistribution;
+export default StockDistributionReport;

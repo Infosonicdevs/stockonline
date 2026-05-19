@@ -19,7 +19,7 @@ function Daybook() {
     const outletId = localStorage.getItem("Outlet_id") || "1";
     try {
       const response = type === "Main" ? await getDayBookMain(date, outletId) : await getDayBookDetail(date, outletId);
-      
+
       // Parse Summary
       const summaryData = response.data?.Summary || { Total_CR: 0, Total_DR: 0, Grand_total: 0, Grand_Total: 0, Opening_Balance: 0, Closing_Balance: 0 };
       const openingBalance = parseFloat(summaryData.Opening_Balance || 0);
@@ -42,10 +42,10 @@ function Daybook() {
           });
         });
       }
-      
+
       let rawCr = [];
       let dr = [];
-      
+
       if (type === "Main") {
         rawCr = apiList.filter((item) => String(item.CrDr_id) === "1").map(item => {
           const amt = item.CR_Amount !== undefined ? item.CR_Amount : (item.cr_amount !== undefined ? item.cr_amount : (item.Amount || 0));
@@ -103,7 +103,7 @@ function Daybook() {
         },
         ...rawCr
       ];
-      
+
       setCreditData(cr);
       setDebitData(dr);
 
@@ -138,7 +138,8 @@ function Daybook() {
 
   useEffect(() => {
     fetchDayBook(selectedDate, viewType);
-  }, [selectedDate, viewType]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const maxRows = Math.max(creditData.length, debitData.length > 0 ? debitData.length + 1 : 1);
 
@@ -195,6 +196,13 @@ function Daybook() {
                 onChange={(e) => setSelectedDate(e.target.value)}
                 style={{ width: "160px" }}
               />
+              <button
+                className="btn btn-primary btn-sm ms-2"
+                onClick={() => fetchDayBook(selectedDate, viewType)}
+                disabled={loading}
+              >
+                {loading ? "Loading..." : "View"}
+              </button>
             </div>
           </div>
         </div>
@@ -223,7 +231,7 @@ function Daybook() {
                     <th width="10%" rowSpan="2" className="align-middle border-secondary">Trans No</th>
                     <th rowSpan="2" className="align-middle border-secondary">Particulars</th>
                     <th colSpan="2" className="border-secondary">Amount</th>
-                    
+
                     {/* Debit Columns */}
                     <th width="10%" rowSpan="2" className="align-middle border-secondary">Trans No</th>
                     <th rowSpan="2" className="align-middle border-secondary">Particulars</th>
@@ -247,15 +255,15 @@ function Daybook() {
                         {crRow ? (
                           <>
                             <td className={crRow.isOpeningBalance ? "fw-bold bg-light text-primary" : ""}>{crRow.Trans_no}</td>
-                            <td className={`text-start ${crRow.isOpeningBalance ? "fw-bold bg-light text-primary" : ""}`}>{crRow.Ledger_name || crRow.Narr || "N/A"}</td>
-                            
+                            <td className={`text-start ${crRow.isOpeningBalance ? "fw-bold bg-light text-primary" : ""}`}>{crRow.Ledger_name_EN || crRow.Narr || "N/A"}</td>
+
                             {/* Cash Column */}
                             <td className={`text-end ${crRow.isOpeningBalance ? "fw-bold bg-light text-primary" : "fw-semibold"}`}>
                               {crRow.isOpeningBalance || crRow.Trans_Type === "Cash"
                                 ? `₹${parseFloat(crRow.Amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
                                 : "-"}
                             </td>
-                            
+
                             {/* Transfer Column */}
                             <td className={`text-end border-secondary ${crRow.isOpeningBalance ? "fw-bold bg-light text-primary" : "fw-semibold"}`}>
                               {!crRow.isOpeningBalance && crRow.Trans_Type !== "Cash"
@@ -276,15 +284,15 @@ function Daybook() {
                         {drRow ? (
                           <>
                             <td>{drRow.Trans_no}</td>
-                            <td className="text-start">{drRow.Ledger_name || drRow.Narr || "N/A"}</td>
-                            
+                            <td className="text-start">{drRow.Ledger_name_EN || drRow.Narr || "N/A"}</td>
+
                             {/* Cash Column */}
                             <td className="text-end fw-semibold">
                               {drRow.Trans_Type === "Cash"
                                 ? `₹${parseFloat(drRow.Amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
                                 : "-"}
                             </td>
-                            
+
                             {/* Transfer Column */}
                             <td className="text-end fw-semibold">
                               {drRow.Trans_Type !== "Cash"
@@ -312,7 +320,7 @@ function Daybook() {
                     </tr>
                   )}
                 </tbody>
-                
+
                 {maxRows > 0 && (
                   <tfoot className="table-light fw-bold">
                     <tr>
